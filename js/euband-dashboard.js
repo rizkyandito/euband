@@ -776,6 +776,10 @@ document.querySelectorAll('.nav-item').forEach(item => {
       window.location.href = './analysis.html';
       return;
     }
+    if (page === 'konseling') {
+      window.open('https://studentaffairs.telkomuniversity.ac.id/konseling/', '_blank', 'noopener');
+      return;
+    }
     // Halaman lain belum diimplementasi
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     item.classList.add('active');
