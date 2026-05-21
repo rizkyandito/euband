@@ -20,15 +20,43 @@
   const sb = window.supabaseClient;
   const USER_KEY = 'user';
 
+  // ============================================================
+  // Username login workaround.
+  // Supabase Auth native cuma support email/phone. Kita translate
+  // username → fake email di domain @euband.local supaya semua API
+  // Supabase Auth tetap berfungsi tanpa setup SMTP.
+  // ============================================================
+  const FAKE_DOMAIN = '@euband.local';
+
+  // Normalisasi: lowercase, hapus spasi, hanya allow [a-z0-9._-]
+  function normalizeUsername(raw) {
+    if (!raw) return '';
+    return String(raw).trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
+  }
+
+  function usernameToEmail(username) {
+    return normalizeUsername(username) + FAKE_DOMAIN;
+  }
+
+  function emailToUsername(email) {
+    if (!email) return '';
+    return email.endsWith(FAKE_DOMAIN)
+      ? email.slice(0, -FAKE_DOMAIN.length)
+      : email;   // fallback: kalau email beneran, tampilkan apa adanya
+  }
+
   function cacheUser(supaUser) {
     if (!supaUser) {
       localStorage.removeItem(USER_KEY);
       return;
     }
+    const username = supaUser.user_metadata?.username
+                  || emailToUsername(supaUser.email);
     const u = {
       id: supaUser.id,
+      username: username,
       email: supaUser.email,
-      full_name: supaUser.user_metadata?.full_name || supaUser.email,
+      full_name: supaUser.user_metadata?.full_name || username,
       role: supaUser.user_metadata?.role || 'user',
     };
     localStorage.setItem(USER_KEY, JSON.stringify(u));
@@ -46,24 +74,43 @@
     return !!getUser();
   }
 
-  async function signUp(email, password, fullName) {
+  // signUp(username, password, fullName?)
+  // username: huruf/angka/dot/underscore/dash, min 3 char
+  async function signUp(username, password, fullName) {
     if (!sb) return { user: null, error: 'Supabase belum dikonfigurasi (cek js/config.js)' };
+    const u = normalizeUsername(username);
+    if (!u || u.length < 3) {
+      return { user: null, error: 'Username minimal 3 karakter (a-z, 0-9, . _ -)' };
+    }
     const { data, error } = await sb.auth.signUp({
-      email,
+      email: usernameToEmail(u),
       password,
-      options: { data: { full_name: fullName } },
+      options: { data: { username: u, full_name: fullName || u } },
     });
-    if (error) return { user: null, error: error.message };
+    if (error) return { user: null, error: translateAuthError(error.message) };
     cacheUser(data.user);
     return { user: data.user, error: null };
   }
 
-  async function signIn(email, password) {
+  async function signIn(username, password) {
     if (!sb) return { user: null, error: 'Supabase belum dikonfigurasi (cek js/config.js)' };
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) return { user: null, error: error.message };
+    const u = normalizeUsername(username);
+    if (!u) return { user: null, error: 'Username tidak boleh kosong' };
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: usernameToEmail(u),
+      password,
+    });
+    if (error) return { user: null, error: translateAuthError(error.message) };
     cacheUser(data.user);
     return { user: data.user, error: null };
+  }
+
+  // Translasi error Supabase yang nyebut "email" → "username"
+  function translateAuthError(msg) {
+    if (!msg) return 'Terjadi kesalahan';
+    return msg
+      .replace(/email/gi, 'username')
+      .replace(/Email/g, 'Username');
   }
 
   async function signOut() {
