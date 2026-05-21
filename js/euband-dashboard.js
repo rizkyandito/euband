@@ -433,7 +433,7 @@ function analyzeAndRender() {
   // Render chart
   drawTrendChart(samples, ppgFilt, gsrFilt);
 
-  // Simpan hasil ke Supabase (kalau available & user login)
+  // Simpan hasil ke Supabase (anonymous, kalau client tersedia)
   saveSessionToSupabase(samples, result, fs).catch(err => {
     log('⚠ Gagal simpan ke cloud: ' + err.message);
   });
@@ -442,9 +442,7 @@ function analyzeAndRender() {
 // Simpan hasil analisis sesi ke Supabase. Silent kalau Supabase belum
 // dikonfigurasi (mode lokal-only).
 async function saveSessionToSupabase(samples, result, fs) {
-  if (!window.sessionsApi || !window.auth || !window.auth.isAuthenticated()) {
-    return;
-  }
+  if (!window.sessionsApi) return;
   const duration = samples.length > 0
     ? (samples[samples.length - 1].t - samples[0].t) / 1000
     : 0;
@@ -769,14 +767,19 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Sidebar nav (placeholder — hanya highlight active)
+// Sidebar nav
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', () => {
+    const page = item.dataset.page;
+    if (page === 'dashboard') return;          // already here
+    if (page === 'riwayat') {
+      window.location.href = './analysis.html';
+      return;
+    }
+    // Halaman lain belum diimplementasi
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     item.classList.add('active');
-    if (item.dataset.page !== 'dashboard') {
-      log(`Halaman "${item.textContent.trim()}" belum tersedia.`);
-    }
+    log(`Halaman "${item.textContent.trim()}" belum tersedia.`);
   });
 });
 

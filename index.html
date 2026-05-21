@@ -3,20 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Euband</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js"></script>
-  <script src="./js/theme.js"></script>
-  <script src="./js/auth.js"></script>
   <script>
-    // Redirect ke login atau dashboard tergantung status auth
-    (async () => {
-      if (window.auth.isAuthenticated()) {
-        const u = window.auth.getUser();
-        window.location.replace(u && u.role === 'admin' ? './admin.html' : './dashboard.html');
-      } else {
-        window.location.replace('./login.html');
-      }
-    })();
+    window.location.replace('./dashboard.html');
   </script>
 </head>
 <body></body>

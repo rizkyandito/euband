@@ -8,14 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/config.js"></script>
-<script src="./js/auth.js"></script>
 <script src="./js/api.js"></script>
-<script>
-  // Guard: kalau belum login redirect. Async, blocking pakai await sebelum render.
-  (async () => {
-    if (!(await window.auth.requireAuth())) return;
-  })();
-</script>
 </head>
 <body>
 
@@ -48,10 +41,10 @@
   </nav>
 
   <div class="user-card">
-    <div class="user-avatar">R</div>
+    <div class="user-avatar">E</div>
     <div>
-      <div class="user-name">M. Rizkyandito</div>
-      <div class="user-role">Mahasiswa · Teknik Biomedis</div>
+      <div class="user-name">Euband</div>
+      <div class="user-role">Stress Monitor Device</div>
     </div>
   </div>
 </aside>
