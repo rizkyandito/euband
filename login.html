@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Euband</title>
+  <link rel="stylesheet" href="./css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/theme.js"></script>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <h2 class="auth-title">Login Euband</h2>
+      <form id="loginForm" class="auth-form">
+        <input id="email" class="input" type="email" placeholder="Email" autocomplete="email" required />
+        <input id="password" class="input" type="password" placeholder="Password (min 6)" autocomplete="current-password" required />
+        <button type="submit" class="btn btn-success" id="btnSubmit">Login</button>
+      </form>
+      <div class="auth-footer" style="margin-top: 12px;">
+        Belum punya akun? <a href="./register.html">Register</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/auth.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/alert.js"></script>
+  <script>
+    // Redirect kalau sudah login
+    (async () => {
+      if (window.auth.isAuthenticated()) {
+        const u = window.auth.getUser();
+        window.location.replace(u && u.role === 'admin' ? './admin.html' : './dashboard.html');
+      }
+    })();
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('btnSubmit');
+
+      if (!email || !password) {
+        return window.showAlert('Email dan password wajib diisi', 'error');
+      }
+      if (password.length < 6) {
+        return window.showAlert('Password minimal 6 karakter', 'error');
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Loading...';
+      const { user, error } = await window.auth.signIn(email, password);
+      btn.disabled = false;
+      btn.textContent = 'Login';
+
+      if (error) {
+        return window.showAlert(error, 'error');
+      }
+      window.showAlert('Welcome back!', 'success');
+      const cached = window.auth.getUser();
+      window.location.href = (cached && cached.role === 'admin')
+        ? './admin.html'
+        : './dashboard.html';
+    });
+  </script>
+</body>
+</html>

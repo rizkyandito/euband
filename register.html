@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — Euband</title>
+  <link rel="stylesheet" href="./css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/theme.js"></script>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <h2 class="auth-title">Daftar Euband</h2>
+      <form id="registerForm" class="auth-form">
+        <input id="fullName" class="input" placeholder="Nama lengkap" autocomplete="name" required />
+        <input id="email" class="input" type="email" placeholder="Email" autocomplete="email" required />
+        <input id="password" class="input" type="password" placeholder="Password (min 6)" autocomplete="new-password" required />
+        <button type="submit" class="btn btn-success" id="btnSubmit">Register</button>
+      </form>
+      <div class="auth-footer">
+        Sudah punya akun? <a href="./login.html">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/auth.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/alert.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fullName = document.getElementById('fullName').value.trim();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn      = document.getElementById('btnSubmit');
+
+      if (!fullName) return window.showAlert('Nama wajib diisi', 'error');
+      if (!email)    return window.showAlert('Email wajib diisi', 'error');
+      if (password.length < 6) return window.showAlert('Password minimal 6 karakter', 'error');
+
+      btn.disabled = true;
+      btn.textContent = 'Loading...';
+      const { user, error } = await window.auth.signUp(email, password, fullName);
+      btn.disabled = false;
+      btn.textContent = 'Register';
+
+      if (error) return window.showAlert(error, 'error');
+
+      // Supabase: kalau email confirmation aktif, user belum bisa langsung login.
+      // Default project: confirmation diaktifkan. Beri tahu user.
+      window.showAlert(
+        'Akun dibuat! Cek email kamu untuk konfirmasi (kalau aktif), lalu login.',
+        'success'
+      );
+      setTimeout(() => { window.location.href = './login.html'; }, 1500);
+    });
+  </script>
+</body>
+</html>

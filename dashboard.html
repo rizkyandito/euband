@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EUBAND — Dashboard Pemantauan Stres</title>
+<link rel="stylesheet" href="./css/euband.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/config.js"></script>
+<script src="./js/auth.js"></script>
+<script src="./js/api.js"></script>
+<script>
+  // Guard: kalau belum login redirect. Async, blocking pakai await sebelum render.
+  (async () => {
+    if (!(await window.auth.requireAuth())) return;
+  })();
+</script>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-name">EUBAND</div>
+    <div class="brand-sub">Stress Detection System</div>
+  </div>
+
+  <nav class="nav">
+    <a class="nav-item active" data-page="dashboard">
+      <span class="nav-ic">⬚</span>Dashboard
+    </a>
+    <a class="nav-item" data-page="riwayat">
+      <span class="nav-ic">↗</span>Riwayat
+    </a>
+    <a class="nav-item" data-page="coping">
+      <span class="nav-ic">✦</span>Coping
+    </a>
+    <a class="nav-item" data-page="konseling">
+      <span class="nav-ic">○</span>Konseling
+    </a>
+    <a class="nav-item" data-page="pengaturan">
+      <span class="nav-ic">⚙</span>Pengaturan
+    </a>
+    <a class="nav-item" data-page="privasi">
+      <span class="nav-ic">○</span>Privasi &amp; Data
+    </a>
+  </nav>
+
+  <div class="user-card">
+    <div class="user-avatar">R</div>
+    <div>
+      <div class="user-name">M. Rizkyandito</div>
+      <div class="user-role">Mahasiswa · Teknik Biomedis</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main content -->
+<main class="main">
+  <!-- Header -->
+  <header class="header">
+    <div>
+      <h1 class="title">Dashboard Pemantauan Stres</h1>
+      <p class="subtitle">Pemantauan fisiologis real-time — <span id="clock">--:--:--</span></p>
+    </div>
+    <div class="header-actions">
+      <button class="status-pill" id="btnConnect">
+        <span class="dot" id="connDot"></span><span id="connText">Hubungkan Perangkat</span>
+      </button>
+      <button class="level-pill normal" id="pillNormal">Normal</button>
+      <button class="level-pill sedang" id="pillSedang">Sedang</button>
+      <button class="level-pill tinggi" id="pillTinggi">Tinggi</button>
+    </div>
+  </header>
+
+  <!-- Top stat cards -->
+  <section class="grid-stats">
+    <div class="card stat-card stress" id="cardStress">
+      <div class="card-label">Tingkat Stres</div>
+      <div class="card-value" id="statLevel">—</div>
+    </div>
+    <div class="card stat-card">
+      <div class="card-label">BPM Saat Ini</div>
+      <div class="card-value blue"><span id="statBpm">—</span><span class="unit">bpm</span></div>
+    </div>
+    <div class="card stat-card">
+      <div class="card-label">GSR Saat Ini</div>
+      <div class="card-value blue"><span id="statGsr">—</span><span class="unit">µS</span></div>
+    </div>
+    <div class="card stat-card">
+      <div class="card-label">Durasi Sesi</div>
+      <div class="card-value purple"><span id="statDur">0d 0m</span></div>
+    </div>
+  </section>
+
+  <!-- Alert banner -->
+  <section class="alert-banner" id="alertBanner" style="display:none;">
+    <div class="alert-icon" id="alertIcon">N</div>
+    <div class="alert-body">
+      <div class="alert-title"><span>Tingkat Stres:</span> <span id="alertLevel">—</span></div>
+      <div class="alert-text" id="alertText">—</div>
+    </div>
+    <button class="alert-action" id="alertAction">Lihat Rekomendasi →</button>
+  </section>
+
+  <!-- Two-column: chart + sidebar panel -->
+  <section class="grid-main">
+    <div class="card chart-card">
+      <div class="chart-head">
+        <div>
+          <h3 class="chart-title">Grafik Tren Fisiologis</h3>
+          <p class="chart-sub">BPM &amp; konduktansi kulit (GSR) per waktu</p>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="lg-line bpm"></span>BPM</span>
+          <span class="legend-item"><span class="lg-line gsr"></span>GSR (μS)</span>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+
+      <div class="record-actions">
+        <button class="btn btn-primary" id="btnStart" disabled>▶ Mulai Rekam</button>
+        <button class="btn btn-danger" id="btnStop" disabled>■ Stop &amp; Analisis</button>
+        <button class="btn btn-ghost" id="btnStatus" disabled>Status</button>
+        <div class="export-group">
+          <button class="btn btn-export" id="btnExportCsv" disabled title="Download data raw + filtered sebagai CSV">⬇ CSV</button>
+          <button class="btn btn-export" id="btnExportPng" disabled title="Download chart sebagai PNG">⬇ PNG</button>
+          <button class="btn btn-export" id="btnExportReport" disabled title="Download ringkasan analisis (JSON)">⬇ Report</button>
+        </div>
+        <span class="hint" id="hintText">Hubungkan perangkat dulu untuk mulai merekam</span>
+      </div>
+    </div>
+
+    <aside class="side-panel">
+      <div class="card coping-card">
+        <div class="coping-head">💡 <span>Strategi Coping</span></div>
+        <div class="coping-list" id="copingList">
+          <div class="coping-item">
+            <div>
+              <div class="coping-name">Pernapasan Dalam</div>
+              <div class="coping-meta">5 menit</div>
+            </div>
+            <span class="tag tag-green">Mandiri</span>
+          </div>
+          <div class="coping-item">
+            <div>
+              <div class="coping-name">Istirahat dari Layar</div>
+              <div class="coping-meta">10 menit</div>
+            </div>
+            <span class="tag tag-green">Mandiri</span>
+          </div>
+          <div class="coping-item">
+            <div>
+              <div class="coping-name">Journaling Emosi</div>
+              <div class="coping-meta">15 menit</div>
+            </div>
+            <span class="tag tag-blue">Reflektif</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card konseling-card">
+        <div class="kons-head">📞 <span>Layanan Konseling</span></div>
+        <div class="kons-item">
+          <div class="kons-name">Biro Konseling Telkom</div>
+          <div class="kons-meta">Tel: (022) 7566456</div>
+        </div>
+        <div class="kons-item">
+          <div class="kons-name">Psikolog Kampus</div>
+          <div class="kons-meta">Gd. Landmark Lt. 3</div>
+        </div>
+        <button class="btn btn-konseling">Buat Janji Konseling →</button>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Footer info row -->
+  <section class="card info-row">
+    <div class="info-item">
+      <div class="info-label">Interval Pembacaan</div>
+      <div class="info-value">2 detik</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Enkripsi Data</div>
+      <div class="info-value">AES-128</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Kategori Stres</div>
+      <div class="info-value">Normal / Sedang / Tinggi</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Akurasi Klasifikasi</div>
+      <div class="info-value">≥ 80%</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Sensor Aktif</div>
+      <div class="info-value">PPG + GSR</div>
+    </div>
+  </section>
+
+  <!-- Hidden log panel for debugging (toggle dengan Ctrl+L) -->
+  <div class="card debug-log" id="debugLog" style="display:none;">
+    <strong>BLE Log:</strong>
+    <pre id="logBox"></pre>
+  </div>
+</main>
+
+<script src="./js/euband-dashboard.js"></script>
+</body>
+</html>

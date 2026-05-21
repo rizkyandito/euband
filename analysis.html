@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riwayat — Euband</title>
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/euband.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/theme.js"></script>
+  <style>
+    .history-wrap { max-width: 900px; margin: 24px auto; padding: 16px; color: #f7fafc; }
+    .history-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .session-row {
+      background: #1a1f2e; border: 1px solid #2d3748; border-radius: 12px;
+      padding: 16px; margin-bottom: 12px; display: grid;
+      grid-template-columns: 120px 1fr 100px 80px;
+      gap: 12px; align-items: center;
+    }
+    .session-time { color: #94a3b8; font-size: 13px; }
+    .session-metrics { font-size: 14px; color: #cbd5e1; }
+    .session-metrics span { margin-right: 12px; }
+    .level-tag { padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; text-align: center; }
+    .level-tag.normal { background: rgba(59,130,246,0.15); color: #93c5fd; }
+    .level-tag.sedang { background: rgba(245,158,11,0.15); color: #fcd34d; }
+    .level-tag.tinggi { background: rgba(239,68,68,0.15); color: #fca5a5; }
+    .empty { text-align: center; color: #64748b; padding: 48px 0; }
+  </style>
+</head>
+<body>
+  <div class="history-wrap">
+    <div class="history-head">
+      <div>
+        <h1 style="font-size: 28px; margin: 0;">Riwayat Sesi</h1>
+        <p style="color: #94a3b8; margin: 4px 0 0; font-size: 14px;">Hasil rekam tersimpan di cloud</p>
+      </div>
+      <a href="./dashboard.html" class="btn btn-success">← Dashboard</a>
+    </div>
+    <div id="sessionList"><div class="empty">Memuat...</div></div>
+  </div>
+  <script>
+    (async () => {
+      if (!(await window.auth.requireAuth())) return;
+
+      const list = document.getElementById('sessionList');
+      try {
+        const sessions = await window.sessionsApi.list(100);
+        if (!sessions.length) {
+          list.innerHTML = '<div class="empty">Belum ada sesi. Rekam dulu di Dashboard.</div>';
+          return;
+        }
+        list.innerHTML = sessions.map(s => {
+          const t = new Date(s.started_at);
+          const dateStr = t.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+          const timeStr = t.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+          const lvl = (s.level || 'Normal').toLowerCase();
+          return `
+            <div class="session-row">
+              <div class="session-time">
+                <div>${dateStr}</div>
+                <div>${timeStr}</div>
+              </div>
+              <div class="session-metrics">
+                <span>BPM: <strong>${s.bpm != null ? s.bpm : '—'}</strong></span>
+                <span>GSR: <strong>${s.gsr_us != null ? s.gsr_us + ' µS' : '—'}</strong></span>
+                <span>Durasi: <strong>${s.duration_sec}s</strong></span>
+              </div>
+              <div class="level-tag ${lvl}">${s.level}</div>
+              <button class="btn btn-danger" style="font-size:11px;padding:6px 10px;" onclick="delSession('${s.id}')">Hapus</button>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        list.innerHTML = `<div class="empty">Gagal memuat: ${err.message}</div>`;
+      }
+    })();
+
+    async function delSession(id) {
+      if (!confirm('Hapus sesi ini?')) return;
+      try {
+        await window.sessionsApi.deleteById(id);
+        location.reload();
+      } catch (e) {
+        alert('Gagal: ' + e.message);
+      }
+    }
+  </script>
+</body>
+</html>
