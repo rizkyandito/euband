@@ -297,3 +297,127 @@ body { display: flex; min-height: 100vh; }
   max-height: 200px; overflow-y: auto;
   white-space: pre-wrap; word-break: break-all;
 }
+
+/* ============================================================
+   Dump progress modal — full-screen overlay saat ESP32 kirim data
+   ============================================================ */
+.dump-overlay {
+  position: fixed; inset: 0;
+  background: rgba(11, 16, 32, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 9999;
+  animation: dump-fade-in 0.25s ease-out;
+}
+.dump-overlay.active { display: flex; }
+
+@keyframes dump-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dump-modal {
+  background: linear-gradient(180deg, #1a1f2e 0%, #141923 100%);
+  border: 1px solid #2d3748;
+  border-radius: 20px;
+  padding: 36px 32px;
+  width: min(440px, calc(100vw - 32px));
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  color: #f7fafc;
+}
+
+.dump-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+  animation: dump-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes dump-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.15); opacity: 0.7; }
+}
+
+.dump-title {
+  font-size: 22px;
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+.dump-sub {
+  color: #94a3b8;
+  font-size: 13px;
+  margin: 0 0 24px;
+}
+
+.dump-bar-wrap {
+  margin-bottom: 24px;
+}
+.dump-bar {
+  height: 10px;
+  background: #2d3748;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.dump-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 999px;
+  transition: width 0.2s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+.dump-bar-fill::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.25) 50%,
+    transparent 100%);
+  animation: dump-shimmer 1.5s linear infinite;
+}
+@keyframes dump-shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+.dump-bar-text {
+  margin-top: 8px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #93c5fd;
+}
+
+.dump-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.dump-meta-item {
+  background: #0f1419;
+  border: 1px solid #2d3748;
+  border-radius: 10px;
+  padding: 10px 8px;
+}
+.dump-meta-label {
+  font-size: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+.dump-meta-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f7fafc;
+}
+
+.dump-status {
+  font-size: 12px;
+  color: #64748b;
+  min-height: 16px;
+  font-style: italic;
+}

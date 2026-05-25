@@ -23,6 +23,12 @@ let sessionStartMs = 0;
 let trendChart = null;
 let lastResult = null;
 
+// ===== Dump progress state =====
+let dumpExpected   = 0;          // total sample yang ESP32 akan kirim (dari #BEGIN)
+let dumpStartedAt  = 0;          // millis saat #BEGIN diterima
+let dumpLastUiTick = 0;          // throttle update UI
+let dumpRateEma    = 0;          // exponential moving average sample/s
+
 // ===== DOM helpers =====
 const $ = (id) => document.getElementById(id);
 const log = (msg) => {
@@ -228,6 +234,11 @@ function onDisconnect() {
   $('hintText').textContent = 'Hubungkan perangkat dulu untuk mulai merekam';
   rxChar = null;
   txChar = null;
+  // Kalau disconnect saat dump → batalin modal supaya tidak nyangkut
+  if (inDump) {
+    inDump = false;
+    hideDumpModal();
+  }
 }
 
 function setConnStatus(text, connected) {
@@ -261,6 +272,71 @@ $('btnStop').addEventListener('click', () => {
   }
 });
 $('btnStatus').addEventListener('click', () => sendCmd('STATUS'));
+
+// ============================================================
+// Dump progress modal — controlled dari handleLine() saat parse
+//   #BEGIN <session> <duration_ms> <sample_count>
+//   <sample rows...>
+//   #END
+// ============================================================
+function showDumpModal(expected) {
+  dumpExpected   = expected || 0;
+  dumpStartedAt  = Date.now();
+  dumpLastUiTick = 0;
+  dumpRateEma    = 0;
+  $('dumpOverlay').classList.add('active');
+  $('dumpOverlay').setAttribute('aria-hidden', 'false');
+  $('dumpPct').textContent    = '0%';
+  $('dumpBarFill').style.width = '0%';
+  $('dumpCount').textContent  = '0';
+  $('dumpTotal').textContent  = expected > 0 ? expected.toLocaleString('id-ID') : '?';
+  $('dumpEta').textContent    = '—';
+  $('dumpRate').textContent   = '—';
+  $('dumpStatus').textContent = 'Menunggu data pertama…';
+}
+
+function updateDumpProgress(received) {
+  // Throttle UI update ke ~10 Hz biar tidak burn CPU
+  const now = Date.now();
+  if (now - dumpLastUiTick < 100 && received < dumpExpected) return;
+  dumpLastUiTick = now;
+
+  const elapsed = (now - dumpStartedAt) / 1000;   // detik
+  const rate = elapsed > 0 ? received / elapsed : 0;
+  // EMA biar rate display tidak jumpy
+  dumpRateEma = dumpRateEma === 0 ? rate : (0.7 * dumpRateEma + 0.3 * rate);
+
+  let pct;
+  let etaStr;
+  if (dumpExpected > 0) {
+    pct = Math.min(100, Math.round((received / dumpExpected) * 100));
+    const remaining = Math.max(0, dumpExpected - received);
+    const eta = dumpRateEma > 0 ? remaining / dumpRateEma : 0;
+    etaStr = eta > 0 ? `~${Math.ceil(eta)}s` : '—';
+  } else {
+    pct = 0;
+    etaStr = '—';
+  }
+
+  $('dumpPct').textContent     = pct + '%';
+  $('dumpBarFill').style.width = pct + '%';
+  $('dumpCount').textContent   = received.toLocaleString('id-ID');
+  $('dumpEta').textContent     = etaStr;
+  $('dumpRate').textContent    = Math.round(dumpRateEma).toLocaleString('id-ID');
+  $('dumpStatus').textContent  = 'Mengirim sample…';
+}
+
+function setDumpAnalyzing() {
+  $('dumpBarFill').style.width = '100%';
+  $('dumpPct').textContent     = '100%';
+  $('dumpEta').textContent     = '0s';
+  $('dumpStatus').textContent  = 'Menganalisis hasil…';
+}
+
+function hideDumpModal() {
+  $('dumpOverlay').classList.remove('active');
+  $('dumpOverlay').setAttribute('aria-hidden', 'true');
+}
 
 // ===== Notify =====
 function onNotify(ev) {
@@ -353,19 +429,29 @@ function handleLine(line) {
   if (line.startsWith('#BEGIN')) {
     inDump = true; samples = [];
     log('← ' + line);
+    // Format: #BEGIN <session> <duration_ms> <sample_count>
+    const parts = line.split(/\s+/);
+    const expectedCount = parts.length >= 4 ? parseInt(parts[3]) : 0;
+    showDumpModal(expectedCount);
     return;
   }
   if (line.startsWith('#END')) {
     inDump = false;
     log(`← #END — total ${samples.length} sample`);
-    analyzeAndRender();
-    $('btnStart').disabled = false;
-    $('btnStop').disabled = true;
-    $('btnStop').textContent = '■ Stop & Analisis';  // reset label
-    $('btnExportCsv').disabled = false;
-    $('btnExportPng').disabled = false;
-    $('btnExportReport').disabled = false;
-    $('hintText').textContent = 'Analisis selesai. Bisa rekam ulang atau export data.';
+    setDumpAnalyzing();
+    // Beri browser jeda 1 frame supaya UI "100% Menganalisis…" sempat repaint
+    // sebelum analyzeAndRender() blocking thread.
+    setTimeout(() => {
+      analyzeAndRender();
+      hideDumpModal();
+      $('btnStart').disabled = false;
+      $('btnStop').disabled = true;
+      $('btnStop').textContent = '■ Stop & Analisis';
+      $('btnExportCsv').disabled = false;
+      $('btnExportPng').disabled = false;
+      $('btnExportReport').disabled = false;
+      $('hintText').textContent = 'Analisis selesai. Bisa rekam ulang atau export data.';
+    }, 50);
     return;
   }
   if (line.startsWith('#')) {
@@ -382,6 +468,7 @@ function handleLine(line) {
   const gsr = parseInt(cols[2]);
   if (isNaN(t) || isNaN(ppg) || isNaN(gsr)) return;
   samples.push({ t, ppg, gsr });
+  updateDumpProgress(samples.length);
 }
 
 // ============================================================

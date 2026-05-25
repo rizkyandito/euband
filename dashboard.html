@@ -199,6 +199,39 @@
   </div>
 </main>
 
+<!-- ============================================================
+     Dump progress modal — muncul saat ESP32 kirim data via BLE
+     ============================================================ -->
+<div class="dump-overlay" id="dumpOverlay" aria-hidden="true">
+  <div class="dump-modal" role="dialog" aria-labelledby="dumpTitle">
+    <div class="dump-icon">📡</div>
+    <h2 id="dumpTitle" class="dump-title">Mengirim Data</h2>
+    <p class="dump-sub" id="dumpSub">Data sedang dikirim dari Euband ke dashboard…</p>
+
+    <div class="dump-bar-wrap">
+      <div class="dump-bar"><div class="dump-bar-fill" id="dumpBarFill"></div></div>
+      <div class="dump-bar-text"><span id="dumpPct">0%</span></div>
+    </div>
+
+    <div class="dump-meta">
+      <div class="dump-meta-item">
+        <div class="dump-meta-label">Sample</div>
+        <div class="dump-meta-value"><span id="dumpCount">0</span> / <span id="dumpTotal">?</span></div>
+      </div>
+      <div class="dump-meta-item">
+        <div class="dump-meta-label">Sisa Waktu</div>
+        <div class="dump-meta-value" id="dumpEta">—</div>
+      </div>
+      <div class="dump-meta-item">
+        <div class="dump-meta-label">Kecepatan</div>
+        <div class="dump-meta-value"><span id="dumpRate">—</span> /s</div>
+      </div>
+    </div>
+
+    <div class="dump-status" id="dumpStatus">Menunggu data pertama…</div>
+  </div>
+</div>
+
 <script src="./js/euband-dashboard.js"></script>
 </body>
 </html>
