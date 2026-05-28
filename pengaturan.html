@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pengaturan — Euband</title>
+<link rel="stylesheet" href="./css/euband.css" />
+<style>
+  .settings-wrap { max-width: 720px; }
+  .settings-card {
+    background: #1a1f2e; border: 1px solid #2d3748;
+    border-radius: 14px; padding: 24px; margin-bottom: 16px;
+  }
+  .settings-card h3 {
+    margin: 0 0 4px; font-size: 16px; color: #f7fafc;
+  }
+  .settings-card .hint {
+    color: #94a3b8; font-size: 13px; margin: 0 0 20px;
+  }
+
+  .threshold-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 1fr 1fr;
+    gap: 10px; align-items: center;
+    margin-bottom: 12px;
+  }
+  .threshold-row.header {
+    color: #94a3b8; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .threshold-row .label-cell {
+    font-size: 13px; font-weight: 600;
+  }
+  .label-cell.normal { color: #93c5fd; }
+  .label-cell.sedang { color: #fcd34d; }
+  .label-cell.tinggi { color: #fca5a5; }
+
+  .input-num {
+    background: #0f1419; color: #f7fafc;
+    border: 1px solid #2d3748; border-radius: 8px;
+    padding: 8px 10px; font-size: 13px;
+    width: 100%; box-sizing: border-box;
+    text-align: center; outline: none;
+  }
+  .input-num:focus { border-color: #3b82f6; }
+  .input-num[readonly] { background: #0a0e15; color: #64748b; cursor: not-allowed; }
+
+  .settings-actions {
+    display: flex; gap: 10px; margin-top: 24px;
+    padding-top: 20px; border-top: 1px solid #2d3748;
+  }
+  .settings-btn {
+    padding: 10px 18px; border-radius: 8px; border: 0;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background .15s ease;
+  }
+  .settings-btn.primary { background: #3b82f6; color: white; }
+  .settings-btn.primary:hover { background: #2563eb; }
+  .settings-btn.ghost { background: transparent; color: #cbd5e1; border: 1px solid #2d3748; }
+  .settings-btn.ghost:hover { background: #1a1f2e; }
+
+  .toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #064e3b; color: #6ee7b7;
+    border: 1px solid #10b981; padding: 12px 16px;
+    border-radius: 10px; font-size: 13px;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s ease; z-index: 9999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  .info-row {
+    display: flex; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid #2d3748;
+    font-size: 13px;
+  }
+  .info-row:last-child { border-bottom: 0; }
+  .info-row .info-label { color: #94a3b8; }
+  .info-row .info-value { color: #f7fafc; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-name">EUBAND</div>
+    <div class="brand-sub">Stress Detection System</div>
+  </div>
+  <nav class="nav">
+    <a class="nav-item" href="./dashboard.html"><span class="nav-ic">⬚</span>Dashboard</a>
+    <a class="nav-item" href="./analysis.html"><span class="nav-ic">↗</span>Riwayat</a>
+    <a class="nav-item" href="./coping.html"><span class="nav-ic">✦</span>Coping</a>
+    <a class="nav-item" href="https://studentaffairs.telkomuniversity.ac.id/konseling/" target="_blank" rel="noopener"><span class="nav-ic">○</span>Konseling</a>
+    <a class="nav-item active" href="./pengaturan.html"><span class="nav-ic">⚙</span>Pengaturan</a>
+    <a class="nav-item" href="./privasi.html"><span class="nav-ic">○</span>Privasi &amp; Data</a>
+  </nav>
+  <div class="user-card">
+    <div class="user-avatar">E</div>
+    <div>
+      <div class="user-name">Euband</div>
+      <div class="user-role">Stress Monitor Device</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="header">
+    <div>
+      <h1 class="title">Pengaturan</h1>
+      <p class="subtitle">Atur threshold klasifikasi stres sesuai baseline personal</p>
+    </div>
+  </header>
+
+  <div class="settings-wrap">
+
+    <div class="settings-card">
+      <h3>Threshold GSR (Konduktansi Kulit, µS)</h3>
+      <p class="hint">
+        Nilai konduktansi kulit yang menentukan kategori stres. Default sesuai
+        baseline umum. Sesuaikan kalau kondisi kulit kamu beda (mis. selalu kering
+        atau selalu lembap).
+      </p>
+
+      <div class="threshold-row header">
+        <div></div>
+        <div style="text-align:center;">Batas Bawah (µS)</div>
+        <div style="text-align:center;">Batas Atas (µS)</div>
+        <div></div>
+      </div>
+      <div class="threshold-row">
+        <div class="label-cell normal">Normal</div>
+        <input class="input-num" id="gsrNormalMin" type="number" step="0.1" readonly value="0" title="Otomatis 0">
+        <input class="input-num" id="gsrNormalMax" type="number" step="0.1" value="4">
+        <div style="color:#64748b;font-size:11px;">&lt; batas atas</div>
+      </div>
+      <div class="threshold-row">
+        <div class="label-cell sedang">Sedang</div>
+        <input class="input-num" id="gsrSedangMin" type="number" step="0.1" value="4" readonly title="= batas atas Normal">
+        <input class="input-num" id="gsrSedangMax" type="number" step="0.1" value="6">
+        <div style="color:#64748b;font-size:11px;">range tengah</div>
+      </div>
+      <div class="threshold-row">
+        <div class="label-cell tinggi">Tinggi</div>
+        <input class="input-num" id="gsrTinggiMin" type="number" step="0.1" value="6" readonly title="= batas atas Sedang">
+        <input class="input-num" id="gsrTinggiMax" type="number" step="0.1" readonly value="∞" title="Tidak ada batas atas">
+        <div style="color:#64748b;font-size:11px;">&gt; batas bawah</div>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3>Threshold BPM (Heart Rate)</h3>
+      <p class="hint">
+        Detak jantung per menit yang menentukan kategori stres. Default sesuai
+        baseline umum dewasa.
+      </p>
+
+      <div class="threshold-row header">
+        <div></div>
+        <div style="text-align:center;">Batas Bawah (BPM)</div>
+        <div style="text-align:center;">Batas Atas (BPM)</div>
+        <div></div>
+      </div>
+      <div class="threshold-row">
+        <div class="label-cell normal">Normal</div>
+        <input class="input-num" id="bpmNormalMin" type="number" readonly value="0" title="Otomatis 0">
+        <input class="input-num" id="bpmNormalMax" type="number" value="90">
+        <div style="color:#64748b;font-size:11px;">&lt; batas atas</div>
+      </div>
+      <div class="threshold-row">
+        <div class="label-cell sedang">Sedang</div>
+        <input class="input-num" id="bpmSedangMin" type="number" value="90" readonly>
+        <input class="input-num" id="bpmSedangMax" type="number" value="100">
+        <div style="color:#64748b;font-size:11px;">range tengah</div>
+      </div>
+      <div class="threshold-row">
+        <div class="label-cell tinggi">Tinggi</div>
+        <input class="input-num" id="bpmTinggiMin" type="number" value="100" readonly>
+        <input class="input-num" id="bpmTinggiMax" type="number" readonly value="∞" title="Tidak ada batas atas">
+        <div style="color:#64748b;font-size:11px;">&gt; batas bawah</div>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3>Logika Kombinasi</h3>
+      <p class="hint">
+        Bagaimana kategori GSR & BPM digabung jadi level akhir.
+      </p>
+      <div style="display:flex;gap:8px;flex-direction:column;">
+        <label style="display:flex;gap:10px;align-items:center;padding:10px;background:#0f1419;border-radius:8px;cursor:pointer;">
+          <input type="radio" name="logic" value="or" id="logicOr">
+          <div>
+            <div style="font-weight:600;color:#f7fafc;">OR — ambil paling tinggi <span style="color:#10b981;">(Recommended)</span></div>
+            <div style="color:#94a3b8;font-size:12px;">Salah satu sensor Tinggi → level Tinggi. Lebih sensitif.</div>
+          </div>
+        </label>
+        <label style="display:flex;gap:10px;align-items:center;padding:10px;background:#0f1419;border-radius:8px;cursor:pointer;">
+          <input type="radio" name="logic" value="and" id="logicAnd">
+          <div>
+            <div style="font-weight:600;color:#f7fafc;">AND — ambil paling rendah</div>
+            <div style="color:#94a3b8;font-size:12px;">Butuh KEDUA sensor naik. Lebih konservatif.</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3>Info Perangkat</h3>
+      <div class="info-row">
+        <span class="info-label">BLE Device Name</span>
+        <span class="info-value">Euband01</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Sample Rate</span>
+        <span class="info-value">100 Hz</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Max Buffer</span>
+        <span class="info-value">360,000 samples (60 menit)</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Filter PPG (firmware)</span>
+        <span class="info-value">IIR Bandpass 0.5–5 Hz</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Filter PPG (dashboard)</span>
+        <span class="info-value">Bandpass 0.5–3 Hz</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Versi Firmware</span>
+        <span class="info-value">v6 (IIR + Kalibrasi)</span>
+      </div>
+    </div>
+
+    <div class="settings-actions">
+      <button class="settings-btn primary" id="btnSave">💾 Simpan Pengaturan</button>
+      <button class="settings-btn ghost" id="btnReset">↺ Reset ke Default</button>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast">✓ Pengaturan tersimpan</div>
+
+<script>
+  // ============================================================
+  // localStorage key + defaults
+  // ============================================================
+  const STORAGE_KEY = 'euband.thresholds.v1';
+  const DEFAULTS = {
+    gsr: { normalMax: 4, sedangMax: 6 },
+    bpm: { normalMax: 90, sedangMax: 100 },
+    logic: 'or',
+  };
+
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { ...DEFAULTS };
+      return { ...DEFAULTS, ...JSON.parse(raw) };
+    } catch { return { ...DEFAULTS }; }
+  }
+
+  function saveSettings(s) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  }
+
+  function applyToUI(s) {
+    document.getElementById('gsrNormalMax').value = s.gsr.normalMax;
+    document.getElementById('gsrSedangMin').value = s.gsr.normalMax;
+    document.getElementById('gsrSedangMax').value = s.gsr.sedangMax;
+    document.getElementById('gsrTinggiMin').value = s.gsr.sedangMax;
+
+    document.getElementById('bpmNormalMax').value = s.bpm.normalMax;
+    document.getElementById('bpmSedangMin').value = s.bpm.normalMax;
+    document.getElementById('bpmSedangMax').value = s.bpm.sedangMax;
+    document.getElementById('bpmTinggiMin').value = s.bpm.sedangMax;
+
+    document.getElementById(s.logic === 'and' ? 'logicAnd' : 'logicOr').checked = true;
+  }
+
+  function collectFromUI() {
+    const gsrNormalMax = Number(document.getElementById('gsrNormalMax').value);
+    const gsrSedangMax = Number(document.getElementById('gsrSedangMax').value);
+    const bpmNormalMax = Number(document.getElementById('bpmNormalMax').value);
+    const bpmSedangMax = Number(document.getElementById('bpmSedangMax').value);
+    const logic = document.querySelector('input[name="logic"]:checked')?.value || 'or';
+
+    // Validasi: max harus > previous max
+    if (gsrSedangMax <= gsrNormalMax) {
+      throw new Error('GSR Sedang max harus lebih besar dari Normal max');
+    }
+    if (bpmSedangMax <= bpmNormalMax) {
+      throw new Error('BPM Sedang max harus lebih besar dari Normal max');
+    }
+
+    return {
+      gsr: { normalMax: gsrNormalMax, sedangMax: gsrSedangMax },
+      bpm: { normalMax: bpmNormalMax, sedangMax: bpmSedangMax },
+      logic,
+    };
+  }
+
+  function showToast(msg, isError = false) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.background = isError ? '#4a1c1c' : '#064e3b';
+    toast.style.borderColor = isError ? '#ef4444' : '#10b981';
+    toast.style.color = isError ? '#fca5a5' : '#6ee7b7';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // ─── Auto-sync min input saat max berubah (visual consistency) ───
+  document.getElementById('gsrNormalMax').addEventListener('input', (e) => {
+    document.getElementById('gsrSedangMin').value = e.target.value;
+  });
+  document.getElementById('gsrSedangMax').addEventListener('input', (e) => {
+    document.getElementById('gsrTinggiMin').value = e.target.value;
+  });
+  document.getElementById('bpmNormalMax').addEventListener('input', (e) => {
+    document.getElementById('bpmSedangMin').value = e.target.value;
+  });
+  document.getElementById('bpmSedangMax').addEventListener('input', (e) => {
+    document.getElementById('bpmTinggiMin').value = e.target.value;
+  });
+
+  document.getElementById('btnSave').addEventListener('click', () => {
+    try {
+      const s = collectFromUI();
+      saveSettings(s);
+      showToast('✓ Pengaturan tersimpan. Dashboard akan pakai threshold baru saat analisis berikut.');
+    } catch (err) {
+      showToast('⚠ ' + err.message, true);
+    }
+  });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    if (!confirm('Reset semua pengaturan ke default?')) return;
+    saveSettings({ ...DEFAULTS });
+    applyToUI({ ...DEFAULTS });
+    showToast('↺ Pengaturan di-reset ke default');
+  });
+
+  // Init
+  applyToUI(loadSettings());
+</script>
+</body>
+</html>

@@ -101,26 +101,37 @@ function adcToMicroSiemens(adc12) {
   return 1e6 / R;
 }
 
-// Klasifikasi 3 level (parameter baseline):
-//   Normal : GSR < 4 µS  & HR < 90
-//   Sedang : GSR 4-6 µS  atau HR 90-100
-//   Tinggi : GSR > 6 µS  atau HR > 100
-// OR logic: ambil kategori paling TINGGI antar dua sinyal.
-// Rasional: stress bisa muncul di salah satu sinyal duluan (mis. GSR naik
-// karena keringat dingin walau denyut belum naik). Lebih sensitif & sesuai
-// intuisi user yang lihat angka GSR tinggi tapi level masih Normal.
+// Klasifikasi 3 level. Threshold default tapi bisa di-override
+// dari Pengaturan (localStorage key: euband.thresholds.v1).
+const DEFAULT_THRESHOLDS = {
+  gsr:   { normalMax: 4,  sedangMax: 6 },
+  bpm:   { normalMax: 90, sedangMax: 100 },
+  logic: 'or',     // 'or' = paling tinggi, 'and' = paling rendah
+};
+
+function loadThresholds() {
+  try {
+    const raw = localStorage.getItem('euband.thresholds.v1');
+    if (!raw) return { ...DEFAULT_THRESHOLDS };
+    return { ...DEFAULT_THRESHOLDS, ...JSON.parse(raw) };
+  } catch { return { ...DEFAULT_THRESHOLDS }; }
+}
+
 function categorize(gsrUs, bpm) {
+  const t = loadThresholds();
   const catGsr =
-    gsrUs > 6  ? 'Tinggi' :
-    gsrUs >= 4 ? 'Sedang' :
-                 'Normal';      // < 4 (termasuk < 2) → Normal
+    gsrUs > t.gsr.sedangMax  ? 'Tinggi' :
+    gsrUs >= t.gsr.normalMax ? 'Sedang' :
+                               'Normal';
   const catBpm =
-    bpm > 100  ? 'Tinggi' :
-    bpm >= 90  ? 'Sedang' :
-                 'Normal';      // < 90 → Normal
+    bpm > t.bpm.sedangMax    ? 'Tinggi' :
+    bpm >= t.bpm.normalMax   ? 'Sedang' :
+                               'Normal';
   const rank = { 'Normal': 0, 'Sedang': 1, 'Tinggi': 2 };
-  // OR: ambil yang paling tinggi
-  const level = rank[catGsr] >= rank[catBpm] ? catGsr : catBpm;
+  // OR: ambil yang paling tinggi. AND: ambil yang paling rendah.
+  const level = (t.logic === 'and')
+    ? (rank[catGsr] <= rank[catBpm] ? catGsr : catBpm)
+    : (rank[catGsr] >= rank[catBpm] ? catGsr : catBpm);
   return { catGsr, catBpm, level };
 }
 
@@ -892,22 +903,27 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Sidebar nav
+// Sidebar nav — semua halaman aktif
+const NAV_ROUTES = {
+  dashboard:   null,                        // already here
+  riwayat:    './analysis.html',
+  coping:     './coping.html',
+  pengaturan: './pengaturan.html',
+  privasi:    './privasi.html',
+};
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', () => {
     const page = item.dataset.page;
-    if (page === 'dashboard') return;          // already here
-    if (page === 'riwayat') {
-      window.location.href = './analysis.html';
-      return;
-    }
+    if (page === 'dashboard') return;
     if (page === 'konseling') {
       window.open('https://studentaffairs.telkomuniversity.ac.id/konseling/', '_blank', 'noopener');
       return;
     }
-    // Halaman lain belum diimplementasi
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
+    const url = NAV_ROUTES[page];
+    if (url) {
+      window.location.href = url;
+      return;
+    }
     log(`Halaman "${item.textContent.trim()}" belum tersedia.`);
   });
 });

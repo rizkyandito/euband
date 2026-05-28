@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Coping — Euband</title>
+<link rel="stylesheet" href="./css/euband.css" />
+<style>
+  .coping-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .coping-card-big {
+    background: linear-gradient(180deg, #1a1f2e 0%, #141a26 100%);
+    border: 1px solid #2d3748;
+    border-radius: 14px;
+    padding: 20px;
+    display: flex; flex-direction: column;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .coping-card-big:hover { transform: translateY(-2px); border-color: #475569; }
+
+  .coping-emoji { font-size: 36px; margin-bottom: 8px; }
+  .coping-title { font-size: 17px; font-weight: 700; color: #f7fafc; margin-bottom: 4px; }
+  .coping-duration { color: #94a3b8; font-size: 12px; margin-bottom: 12px; }
+  .coping-desc { color: #cbd5e1; font-size: 13px; line-height: 1.5; margin-bottom: 12px; flex-grow: 1; }
+  .coping-steps { color: #94a3b8; font-size: 12px; margin-bottom: 16px; padding-left: 16px; }
+  .coping-steps li { margin-bottom: 4px; }
+  .coping-btn {
+    background: #3b82f6; color: white; border: 0;
+    padding: 10px; border-radius: 8px; font-size: 13px;
+    font-weight: 600; cursor: pointer;
+    transition: background .15s ease;
+  }
+  .coping-btn:hover { background: #2563eb; }
+  .coping-btn.active { background: #ef4444; }
+  .coping-btn.active:hover { background: #dc2626; }
+
+  /* Timer overlay */
+  .timer-overlay {
+    position: fixed; inset: 0;
+    background: rgba(11, 16, 32, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 9999;
+  }
+  .timer-overlay.active { display: flex; }
+  .timer-modal {
+    background: linear-gradient(180deg, #1a1f2e 0%, #141923 100%);
+    border: 1px solid #2d3748; border-radius: 20px;
+    padding: 40px 36px; width: min(420px, calc(100vw - 32px));
+    text-align: center; color: #f7fafc;
+  }
+  .timer-modal h2 { font-size: 22px; margin: 0 0 8px; }
+  .timer-modal .desc { color: #94a3b8; font-size: 14px; margin: 0 0 24px; }
+  .timer-circle {
+    width: 200px; height: 200px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: conic-gradient(#3b82f6 var(--p, 0%), #2d3748 0);
+    display: flex; align-items: center; justify-content: center;
+    transition: --p 0.5s ease;
+    position: relative;
+  }
+  .timer-circle-inner {
+    width: 170px; height: 170px;
+    background: #141923; border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .timer-value { font-size: 42px; font-weight: 700; color: #f7fafc; }
+  .timer-label { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+  .timer-instr {
+    color: #cbd5e1; font-size: 14px; margin-bottom: 24px;
+    min-height: 40px;
+  }
+  .timer-actions { display: flex; gap: 10px; justify-content: center; }
+  .timer-btn {
+    padding: 10px 20px; border-radius: 10px; border: 0;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .timer-btn.danger { background: #ef4444; color: white; }
+  .timer-btn.danger:hover { background: #dc2626; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-name">EUBAND</div>
+    <div class="brand-sub">Stress Detection System</div>
+  </div>
+  <nav class="nav">
+    <a class="nav-item" href="./dashboard.html"><span class="nav-ic">⬚</span>Dashboard</a>
+    <a class="nav-item" href="./analysis.html"><span class="nav-ic">↗</span>Riwayat</a>
+    <a class="nav-item active" href="./coping.html"><span class="nav-ic">✦</span>Coping</a>
+    <a class="nav-item" href="https://studentaffairs.telkomuniversity.ac.id/konseling/" target="_blank" rel="noopener"><span class="nav-ic">○</span>Konseling</a>
+    <a class="nav-item" href="./pengaturan.html"><span class="nav-ic">⚙</span>Pengaturan</a>
+    <a class="nav-item" href="./privasi.html"><span class="nav-ic">○</span>Privasi &amp; Data</a>
+  </nav>
+  <div class="user-card">
+    <div class="user-avatar">E</div>
+    <div>
+      <div class="user-name">Euband</div>
+      <div class="user-role">Stress Monitor Device</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="header">
+    <div>
+      <h1 class="title">Strategi Coping</h1>
+      <p class="subtitle">Teknik manajemen stres berbasis bukti — pilih sesuai kebutuhan</p>
+    </div>
+  </header>
+
+  <section class="coping-grid" id="copingGrid"></section>
+</main>
+
+<!-- Timer modal -->
+<div class="timer-overlay" id="timerOverlay">
+  <div class="timer-modal">
+    <h2 id="tmTitle">—</h2>
+    <p class="desc" id="tmDesc">—</p>
+    <div class="timer-circle" id="tmCircle">
+      <div class="timer-circle-inner">
+        <div class="timer-value" id="tmValue">0:00</div>
+        <div class="timer-label">tersisa</div>
+      </div>
+    </div>
+    <div class="timer-instr" id="tmInstr">—</div>
+    <div class="timer-actions">
+      <button class="timer-btn danger" id="tmStop">■ Hentikan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // Library teknik coping
+  // ============================================================
+  const TECHNIQUES = [
+    {
+      id: 'breathing-478',
+      emoji: '🌬️',
+      title: 'Pernapasan 4-7-8',
+      duration: 4,                  // menit
+      desc: 'Teknik pernapasan Dr. Andrew Weil — efektif menenangkan sistem saraf simpatik dalam 4 menit.',
+      steps: [
+        'Tarik napas lewat hidung 4 detik',
+        'Tahan napas 7 detik',
+        'Hembuskan lewat mulut 8 detik',
+        'Ulangi 4 siklus',
+      ],
+      // Instruksi yang berubah sesuai detik untuk guided timer
+      instructions: (sec) => {
+        const cycle = sec % 19;          // 4+7+8 = 19 detik per siklus
+        if (cycle < 4)  return `Tarik napas... (${4 - cycle})`;
+        if (cycle < 11) return `Tahan napas... (${11 - cycle})`;
+        return `Hembuskan... (${19 - cycle})`;
+      },
+    },
+    {
+      id: 'box-breathing',
+      emoji: '🟦',
+      title: 'Box Breathing',
+      duration: 5,
+      desc: 'Teknik militer Navy SEAL — pernapasan kotak untuk fokus dan ketenangan cepat.',
+      steps: [
+        'Tarik napas 4 detik',
+        'Tahan 4 detik',
+        'Hembuskan 4 detik',
+        'Tahan 4 detik (kosong)',
+      ],
+      instructions: (sec) => {
+        const cycle = sec % 16;
+        if (cycle < 4)  return `Tarik napas... (${4 - cycle})`;
+        if (cycle < 8)  return `Tahan... (${8 - cycle})`;
+        if (cycle < 12) return `Hembuskan... (${12 - cycle})`;
+        return `Tahan kosong... (${16 - cycle})`;
+      },
+    },
+    {
+      id: 'rest-screen',
+      emoji: '🧘',
+      title: 'Istirahat dari Layar',
+      duration: 10,
+      desc: 'Aturan 20-20-20: setiap 20 menit, lihat objek 20 kaki jauhnya selama 20 detik. Bagus untuk mata & stres digital.',
+      steps: [
+        'Tutup layar / palingkan pandangan',
+        'Cari objek jauh (jendela, dinding)',
+        'Fokus & rileks otot mata',
+        'Hindari notifikasi selama 10 menit',
+      ],
+      instructions: (sec) => {
+        if (sec < 60) return 'Mulai dengan tarik napas dalam...';
+        if (sec < 300) return 'Pertahankan fokus jauh, rileks bahu...';
+        return 'Hampir selesai — siap kembali fokus.';
+      },
+    },
+    {
+      id: 'journaling',
+      emoji: '📝',
+      title: 'Journaling Emosi',
+      duration: 15,
+      desc: 'Tulis perasaan & pikiran tanpa filter selama 15 menit. Terbukti mengurangi rumination & cemas.',
+      steps: [
+        'Ambil kertas / buka catatan',
+        'Tulis apa yang dirasakan tanpa edit',
+        'Identifikasi 1 trigger utama',
+        'Tulis 1 hal yang disyukuri',
+      ],
+      instructions: (sec) => {
+        if (sec < 60)  return 'Mulai dengan: "Saat ini saya merasa..."';
+        if (sec < 300) return 'Tulis bebas, tanpa menilai diri sendiri.';
+        if (sec < 720) return 'Coba identifikasi trigger utamanya...';
+        return 'Tutup dengan 1 hal yang disyukuri hari ini.';
+      },
+    },
+    {
+      id: 'grounding-54321',
+      emoji: '🌱',
+      title: 'Grounding 5-4-3-2-1',
+      duration: 5,
+      desc: 'Teknik grounding sensorik untuk panik / overthinking. Fokus ke 5 indera sekarang juga.',
+      steps: [
+        '5 hal yang BISA DILIHAT',
+        '4 hal yang BISA DISENTUH',
+        '3 hal yang BISA DIDENGAR',
+        '2 hal yang BISA DICIUM',
+        '1 hal yang BISA DIRASAKAN',
+      ],
+      instructions: (sec) => {
+        if (sec < 60)  return 'Sebutkan 5 hal yang BISA KAMU LIHAT sekarang';
+        if (sec < 120) return 'Sentuh 4 benda di sekitarmu — rasakan teksturnya';
+        if (sec < 180) return 'Dengarkan 3 suara berbeda di sekitarmu';
+        if (sec < 240) return 'Cium 2 aroma di sekitarmu';
+        return 'Rasakan 1 hal — rasa di mulut, kulit, atau emosi';
+      },
+    },
+    {
+      id: 'progressive-relax',
+      emoji: '💆',
+      title: 'Progressive Muscle Relax',
+      duration: 8,
+      desc: 'Tegangkan & lepas tiap kelompok otot secara berurutan. Efektif untuk ketegangan fisik akibat stres.',
+      steps: [
+        'Tegangkan otot kaki 5 detik, lepas',
+        'Lanjut perut, dada, tangan',
+        'Akhiri dengan wajah & rahang',
+        'Rasakan beda antara tegang & rileks',
+      ],
+      instructions: (sec) => {
+        const zones = ['kaki', 'paha', 'perut', 'dada', 'tangan', 'bahu', 'wajah', 'seluruh tubuh'];
+        const idx = Math.min(Math.floor(sec / 60), zones.length - 1);
+        return `Fokus ke: ${zones[idx]} — tegangkan 5 detik, lepas`;
+      },
+    },
+  ];
+
+  // ============================================================
+  // Render grid
+  // ============================================================
+  const grid = document.getElementById('copingGrid');
+  grid.innerHTML = TECHNIQUES.map(t => `
+    <div class="coping-card-big">
+      <div class="coping-emoji">${t.emoji}</div>
+      <div class="coping-title">${t.title}</div>
+      <div class="coping-duration">⏱ ${t.duration} menit</div>
+      <div class="coping-desc">${t.desc}</div>
+      <ol class="coping-steps">
+        ${t.steps.map(s => `<li>${s}</li>`).join('')}
+      </ol>
+      <button class="coping-btn" data-id="${t.id}">▶ Mulai Sesi</button>
+    </div>
+  `).join('');
+
+  // ============================================================
+  // Timer logic
+  // ============================================================
+  let timerInterval = null;
+  let timerStartMs  = 0;
+  let timerDurSec   = 0;
+  let activeTechnique = null;
+
+  const overlay = document.getElementById('timerOverlay');
+  const tmTitle = document.getElementById('tmTitle');
+  const tmDesc  = document.getElementById('tmDesc');
+  const tmValue = document.getElementById('tmValue');
+  const tmInstr = document.getElementById('tmInstr');
+  const tmCircle = document.getElementById('tmCircle');
+  const tmStop  = document.getElementById('tmStop');
+
+  function startTimer(technique) {
+    activeTechnique = technique;
+    timerDurSec  = technique.duration * 60;
+    timerStartMs = Date.now();
+    tmTitle.textContent = technique.title;
+    tmDesc.textContent  = `${technique.duration} menit — ${technique.steps[0]}`;
+    overlay.classList.add('active');
+    tick();
+    timerInterval = setInterval(tick, 500);
+  }
+
+  function stopTimer(completed = false) {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+    overlay.classList.remove('active');
+    if (completed) {
+      // Notifikasi singkat (optional: bisa pakai notification API)
+      setTimeout(() => alert(`✓ Selesai: ${activeTechnique.title}\n\nSemoga lebih tenang!`), 200);
+    }
+    activeTechnique = null;
+  }
+
+  function tick() {
+    const elapsedSec = Math.floor((Date.now() - timerStartMs) / 1000);
+    const remaining  = Math.max(0, timerDurSec - elapsedSec);
+
+    const mm = Math.floor(remaining / 60);
+    const ss = remaining % 60;
+    tmValue.textContent = `${mm}:${ss.toString().padStart(2, '0')}`;
+
+    const pct = ((timerDurSec - remaining) / timerDurSec) * 100;
+    tmCircle.style.setProperty('--p', pct + '%');
+
+    if (activeTechnique && activeTechnique.instructions) {
+      tmInstr.textContent = activeTechnique.instructions(elapsedSec);
+    }
+
+    if (remaining === 0) {
+      stopTimer(true);
+    }
+  }
+
+  // Wire buttons
+  grid.querySelectorAll('.coping-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const technique = TECHNIQUES.find(t => t.id === btn.dataset.id);
+      if (technique) startTimer(technique);
+    });
+  });
+  tmStop.addEventListener('click', () => stopTimer(false));
+</script>
+</body>
+</html>
