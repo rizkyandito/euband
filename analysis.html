@@ -9,147 +9,150 @@
 <script src="./js/config.js"></script>
 <script src="./js/api.js"></script>
 <style>
-  /* ===== Halaman Riwayat ===== */
+  /* Light-theme riwayat (match dashboard) */
   .riwayat-toolbar {
     display: flex; flex-wrap: wrap; gap: 12px;
     align-items: center; justify-content: space-between;
     margin-bottom: 16px;
   }
   .riwayat-toolbar .filters { display: flex; gap: 8px; align-items: center; }
+  .filter-label { color: var(--muted); font-size: 13px; }
   .riwayat-select {
-    background: #1a1f2e; color: #f7fafc;
-    border: 1px solid #2d3748; border-radius: 10px;
-    padding: 8px 12px; font-size: 13px;
+    background: var(--card); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 10px; font-size: 13px;
     cursor: pointer; outline: none;
+    transition: border-color .15s ease;
   }
-  .riwayat-select:hover { border-color: #475569; }
+  .riwayat-select:hover, .riwayat-select:focus { border-color: var(--blue); }
+  .result-count { color: var(--muted); font-size: 13px; }
 
-  /* Grid card sesi */
   .session-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 14px;
   }
+
   .session-card {
-    background: linear-gradient(180deg, #1a1f2e 0%, #141a26 100%);
-    border: 1px solid #2d3748; border-radius: 14px;
-    padding: 18px; position: relative;
-    transition: transform .15s ease, border-color .15s ease;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    position: relative;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
     overflow: hidden;
   }
-  .session-card:hover { transform: translateY(-2px); border-color: #475569; }
-
-  /* Strip warna level di kiri card */
+  .session-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    border-color: #cbd5e1;
+  }
   .session-card::before {
     content: ''; position: absolute; left: 0; top: 0; bottom: 0;
     width: 4px;
   }
-  .session-card.normal::before { background: #3b82f6; }
-  .session-card.sedang::before { background: #f59e0b; }
-  .session-card.tinggi::before { background: #ef4444; }
+  .session-card.normal::before { background: var(--blue); }
+  .session-card.sedang::before { background: var(--amber); }
+  .session-card.tinggi::before { background: var(--red); }
 
   .session-card-head {
     display: flex; justify-content: space-between;
     align-items: flex-start; margin-bottom: 14px;
   }
   .session-date {
-    color: #94a3b8; font-size: 12px;
+    color: var(--muted); font-size: 12px;
     text-transform: uppercase; letter-spacing: 0.05em;
   }
-  .session-date strong { color: #f7fafc; font-size: 14px; display: block; margin-top: 2px; }
+  .session-date strong {
+    color: var(--text); font-size: 14px;
+    display: block; margin-top: 2px;
+    text-transform: none; letter-spacing: 0;
+  }
 
   .level-badge {
     padding: 5px 12px; border-radius: 999px;
     font-size: 11px; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.05em;
   }
-  .level-badge.normal { background: rgba(59,130,246,0.18); color: #93c5fd; border: 1px solid rgba(59,130,246,0.35); }
-  .level-badge.sedang { background: rgba(245,158,11,0.18); color: #fcd34d; border: 1px solid rgba(245,158,11,0.35); }
-  .level-badge.tinggi { background: rgba(239,68,68,0.18); color: #fca5a5; border: 1px solid rgba(239,68,68,0.35); }
+  .level-badge.normal { background: var(--green-soft); color: var(--green-text); }
+  .level-badge.sedang { background: var(--amber-soft); color: var(--amber-text); }
+  .level-badge.tinggi { background: var(--red-soft); color: var(--red-text); }
 
-  /* Metrics grid di dalam card */
   .session-metrics-grid {
     display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 10px; margin-bottom: 14px;
+    gap: 8px; margin-bottom: 14px;
   }
   .metric-mini {
-    background: #0f1419; border-radius: 8px;
-    padding: 10px; text-align: center;
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 8px; text-align: center;
   }
   .metric-mini-label {
-    color: #94a3b8; font-size: 10px;
+    color: var(--muted); font-size: 10px;
     text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
   }
   .metric-mini-value {
-    color: #f7fafc; font-size: 16px; font-weight: 700;
+    color: var(--text); font-size: 16px; font-weight: 700;
   }
-  .metric-mini-unit { color: #94a3b8; font-size: 11px; font-weight: 400; margin-left: 2px; }
+  .metric-mini-unit {
+    color: var(--muted); font-size: 11px; font-weight: 400; margin-left: 2px;
+  }
 
-  /* Footer card */
   .session-footer {
     display: flex; justify-content: space-between; align-items: center;
-    padding-top: 12px; border-top: 1px solid #2d3748;
+    padding-top: 12px; border-top: 1px solid var(--border);
   }
-  .session-footer-info { color: #64748b; font-size: 11px; }
+  .session-footer-info { color: var(--muted2); font-size: 11px; }
   .btn-delete {
-    background: transparent; border: 1px solid #4a1c1c;
-    color: #fca5a5; padding: 5px 10px;
+    background: transparent;
+    color: var(--red);
+    border: 1px solid var(--red-soft);
+    padding: 5px 10px;
     border-radius: 6px; font-size: 11px; cursor: pointer;
     transition: all .15s ease;
   }
-  .btn-delete:hover { background: rgba(239,68,68,0.15); border-color: #ef4444; }
+  .btn-delete:hover {
+    background: var(--red-soft);
+    border-color: var(--red);
+  }
 
-  /* Empty & loading */
   .empty-state {
     grid-column: 1 / -1;
-    text-align: center; color: #64748b; padding: 80px 20px;
-    background: #1a1f2e; border: 1px dashed #2d3748; border-radius: 14px;
+    text-align: center; color: var(--muted2);
+    padding: 70px 20px;
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
   }
-  .empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
-  .empty-state-title { color: #cbd5e1; font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
+  .empty-state-title { color: var(--text); font-size: 16px; font-weight: 600; margin-bottom: 6px; }
   .empty-state-sub { font-size: 13px; }
 
-  /* Stats summary di atas */
   .grid-stats-riwayat {
     display: grid; grid-template-columns: repeat(4, 1fr);
     gap: 14px; margin-bottom: 20px;
   }
   @media (max-width: 768px) {
     .grid-stats-riwayat { grid-template-columns: repeat(2, 1fr); }
-    .session-metrics-grid { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
 <aside class="sidebar">
   <div class="brand">
     <div class="brand-name">EUBAND</div>
     <div class="brand-sub">Stress Detection System</div>
   </div>
-
   <nav class="nav">
-    <a class="nav-item" href="./dashboard.html">
-      <span class="nav-ic">⬚</span>Dashboard
-    </a>
-    <a class="nav-item active" href="./analysis.html">
-      <span class="nav-ic">↗</span>Riwayat
-    </a>
-    <a class="nav-item" href="./dashboard.html">
-      <span class="nav-ic">✦</span>Coping
-    </a>
-    <a class="nav-item" href="https://studentaffairs.telkomuniversity.ac.id/konseling/" target="_blank" rel="noopener">
-      <span class="nav-ic">○</span>Konseling
-    </a>
-    <a class="nav-item" href="./dashboard.html">
-      <span class="nav-ic">⚙</span>Pengaturan
-    </a>
-    <a class="nav-item" href="./dashboard.html">
-      <span class="nav-ic">○</span>Privasi &amp; Data
-    </a>
+    <a class="nav-item" href="./dashboard.html"><span class="nav-ic">⬚</span>Dashboard</a>
+    <a class="nav-item active" href="./analysis.html"><span class="nav-ic">↗</span>Riwayat</a>
+    <a class="nav-item" href="./coping.html"><span class="nav-ic">✦</span>Coping</a>
+    <a class="nav-item" href="https://studentaffairs.telkomuniversity.ac.id/konseling/" target="_blank" rel="noopener"><span class="nav-ic">○</span>Konseling</a>
+    <a class="nav-item" href="./pengaturan.html"><span class="nav-ic">⚙</span>Pengaturan</a>
+    <a class="nav-item" href="./privasi.html"><span class="nav-ic">○</span>Privasi &amp; Data</a>
   </nav>
-
   <div class="user-card">
     <div class="user-avatar">E</div>
     <div>
@@ -159,19 +162,14 @@
   </div>
 </aside>
 
-<!-- Main content -->
 <main class="main">
   <header class="header">
     <div>
       <h1 class="title">Riwayat Sesi</h1>
       <p class="subtitle">Semua hasil pemantauan tersimpan di cloud</p>
     </div>
-    <div class="header-actions">
-      <a href="./dashboard.html" class="btn btn-konseling" style="text-decoration:none;">← Dashboard</a>
-    </div>
   </header>
 
-  <!-- Stat summary cards -->
   <section class="grid-stats-riwayat">
     <div class="card stat-card">
       <div class="card-label">Total Sesi</div>
@@ -187,14 +185,13 @@
     </div>
     <div class="card stat-card">
       <div class="card-label">Sesi Stres Tinggi</div>
-      <div class="card-value" style="color:#fca5a5;"><span id="stTinggi">—</span></div>
+      <div class="card-value purple"><span id="stTinggi">—</span></div>
     </div>
   </section>
 
-  <!-- Toolbar: filter & sort -->
   <div class="riwayat-toolbar">
     <div class="filters">
-      <span style="color:#94a3b8;font-size:13px;">Filter:</span>
+      <span class="filter-label">Filter:</span>
       <select id="filterLevel" class="riwayat-select">
         <option value="">Semua level</option>
         <option value="Normal">Normal</option>
@@ -206,10 +203,9 @@
         <option value="asc">Terlama dulu</option>
       </select>
     </div>
-    <div style="color:#94a3b8;font-size:13px;"><span id="resultCount">0</span> sesi ditampilkan</div>
+    <div class="result-count"><span id="resultCount">0</span> sesi ditampilkan</div>
   </div>
 
-  <!-- Grid sesi -->
   <section id="sessionGrid" class="session-grid">
     <div class="empty-state">
       <div class="empty-state-icon">⏳</div>
@@ -219,10 +215,7 @@
 </main>
 
 <script>
-  // State
   let allSessions = [];
-
-  // ─── Helpers ───
   const $ = (id) => document.getElementById(id);
 
   function formatDate(iso) {
@@ -231,41 +224,30 @@
     const timeStr = t.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     return { dateStr, timeStr };
   }
-
   function formatDuration(sec) {
     if (sec == null) return '—';
     const m = Math.floor(sec / 60);
     const s = Math.round(sec % 60);
     return m > 0 ? `${m}m ${s}s` : `${s}s`;
   }
-
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[c]));
   }
 
-  // ─── Render summary stats ───
   function renderStats(sessions) {
     $('stTotal').textContent = sessions.length;
-
     const bpms = sessions.filter(s => s.bpm != null).map(s => Number(s.bpm));
-    const avgBpm = bpms.length ? (bpms.reduce((a,b) => a+b, 0) / bpms.length).toFixed(0) : '—';
-    $('stAvgBpm').textContent = avgBpm;
-
+    $('stAvgBpm').textContent = bpms.length ? (bpms.reduce((a,b) => a+b, 0) / bpms.length).toFixed(0) : '—';
     const gsrs = sessions.filter(s => s.gsr_us != null).map(s => Number(s.gsr_us));
-    const avgGsr = gsrs.length ? (gsrs.reduce((a,b) => a+b, 0) / gsrs.length).toFixed(2) : '—';
-    $('stAvgGsr').textContent = avgGsr;
-
-    const tinggi = sessions.filter(s => s.level === 'Tinggi').length;
-    $('stTinggi').textContent = tinggi;
+    $('stAvgGsr').textContent = gsrs.length ? (gsrs.reduce((a,b) => a+b, 0) / gsrs.length).toFixed(2) : '—';
+    $('stTinggi').textContent = sessions.filter(s => s.level === 'Tinggi').length;
   }
 
-  // ─── Render grid ───
   function renderGrid(sessions) {
     const grid = $('sessionGrid');
     $('resultCount').textContent = sessions.length;
-
     if (!sessions.length) {
       grid.innerHTML = `
         <div class="empty-state">
@@ -276,14 +258,12 @@
       `;
       return;
     }
-
     grid.innerHTML = sessions.map(s => {
       const { dateStr, timeStr } = formatDate(s.started_at);
       const lvl = (s.level || 'Normal').toLowerCase();
       const bpm = s.bpm != null ? s.bpm : '—';
       const gsr = s.gsr_us != null ? Number(s.gsr_us).toFixed(2) : '—';
       const dur = formatDuration(s.duration_sec);
-
       return `
         <div class="session-card ${escapeHtml(lvl)}">
           <div class="session-card-head">
@@ -293,7 +273,6 @@
             </div>
             <span class="level-badge ${escapeHtml(lvl)}">${escapeHtml(s.level)}</span>
           </div>
-
           <div class="session-metrics-grid">
             <div class="metric-mini">
               <div class="metric-mini-label">BPM</div>
@@ -308,7 +287,6 @@
               <div class="metric-mini-value">${escapeHtml(dur)}</div>
             </div>
           </div>
-
           <div class="session-footer">
             <div class="session-footer-info">
               ${s.sample_count != null ? s.sample_count.toLocaleString('id-ID') + ' data' : ''}
@@ -319,18 +297,14 @@
         </div>
       `;
     }).join('');
-
-    // Wire delete buttons
     grid.querySelectorAll('.btn-delete').forEach(btn => {
       btn.addEventListener('click', () => delSession(btn.dataset.id));
     });
   }
 
-  // ─── Apply filter & sort dari toolbar ───
   function applyFilters() {
     const filterLevel = $('filterLevel').value;
     const sortBy = $('sortBy').value;
-
     let list = allSessions.slice();
     if (filterLevel) list = list.filter(s => s.level === filterLevel);
     list.sort((a, b) => {
@@ -341,19 +315,16 @@
     renderGrid(list);
   }
 
-  // ─── Delete ───
   async function delSession(id) {
     if (!confirm('Hapus sesi ini? Tidak bisa dibatalkan.')) return;
     try {
       await window.sessionsApi.deleteById(id);
-      // Reload dari Supabase supaya state konsisten
       await loadAndRender();
     } catch (e) {
       alert('Gagal hapus: ' + e.message);
     }
   }
 
-  // ─── Load & render ───
   async function loadAndRender() {
     const grid = $('sessionGrid');
     try {
@@ -371,7 +342,6 @@
     }
   }
 
-  // ─── Init ───
   $('filterLevel').addEventListener('change', applyFilters);
   $('sortBy').addEventListener('change', applyFilters);
   loadAndRender();

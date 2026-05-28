@@ -11,14 +11,16 @@
 <style>
   .privacy-wrap { max-width: 720px; }
   .privacy-card {
-    background: #1a1f2e; border: 1px solid #2d3748;
-    border-radius: 14px; padding: 24px; margin-bottom: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 16px;
   }
-  .privacy-card h3 {
-    margin: 0 0 4px; font-size: 16px; color: #f7fafc;
-  }
+  .privacy-card h3 { margin: 0 0 4px; font-size: 16px; color: var(--text); }
   .privacy-card .hint {
-    color: #94a3b8; font-size: 13px; margin: 0 0 16px; line-height: 1.5;
+    color: var(--muted); font-size: 13px;
+    margin: 0 0 16px; line-height: 1.5;
   }
 
   .stat-mini-grid {
@@ -26,54 +28,50 @@
     gap: 10px; margin-bottom: 16px;
   }
   .stat-mini-card {
-    background: #0f1419; padding: 14px; border-radius: 10px;
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    padding: 14px; border-radius: 10px;
     text-align: center;
   }
   .stat-mini-card .lbl {
-    color: #94a3b8; font-size: 10px;
+    color: var(--muted); font-size: 10px;
     text-transform: uppercase; letter-spacing: 0.05em;
     margin-bottom: 4px;
   }
   .stat-mini-card .val {
-    color: #f7fafc; font-size: 20px; font-weight: 700;
+    color: var(--text); font-size: 20px; font-weight: 700;
   }
-  .stat-mini-card .val.danger { color: #fca5a5; }
-
-  .action-btn {
-    padding: 10px 16px; border-radius: 8px; border: 0;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    transition: background .15s ease;
-    display: inline-block; text-decoration: none;
-    text-align: center;
-  }
-  .action-btn.primary { background: #3b82f6; color: white; }
-  .action-btn.primary:hover { background: #2563eb; }
-  .action-btn.danger { background: #ef4444; color: white; }
-  .action-btn.danger:hover { background: #dc2626; }
-  .action-btn.ghost { background: transparent; color: #cbd5e1; border: 1px solid #2d3748; }
-  .action-btn.ghost:hover { background: #1a1f2e; }
-  .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .stat-mini-card .val.danger { color: var(--red); }
 
   .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
 
   .disclosure {
-    background: #0f1419; padding: 14px;
-    border-radius: 10px; font-size: 12.5px;
-    color: #cbd5e1; line-height: 1.6;
-    border-left: 3px solid #3b82f6;
+    background: #f0f9ff;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #1e3a8a;
+    line-height: 1.6;
+    border-left: 3px solid var(--blue);
   }
-  .disclosure ul { margin: 8px 0 0; padding-left: 20px; }
+  .disclosure strong { color: var(--text); }
+  .disclosure ul { margin: 6px 0 12px; padding-left: 20px; }
+  .disclosure ul:last-child { margin-bottom: 0; }
   .disclosure li { margin-bottom: 4px; }
 
   .toast {
     position: fixed; bottom: 20px; right: 20px;
-    background: #064e3b; color: #6ee7b7;
-    border: 1px solid #10b981; padding: 12px 16px;
+    background: #ecfdf5; color: var(--green-text);
+    border: 1px solid var(--green);
+    padding: 12px 16px;
     border-radius: 10px; font-size: 13px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     transform: translateY(100px); opacity: 0;
     transition: all 0.3s ease; z-index: 9999;
+    max-width: 360px;
   }
   .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { background: #fef2f2; color: var(--red-text); border-color: var(--red); }
 </style>
 </head>
 <body>
@@ -130,8 +128,8 @@
       </div>
 
       <div class="action-row">
-        <button class="action-btn primary" id="btnExport">⬇ Export Semua Data (JSON)</button>
-        <button class="action-btn ghost" id="btnRefresh">↻ Refresh Statistik</button>
+        <button class="btn btn-primary" id="btnExport">⬇ Export Semua Data (JSON)</button>
+        <button class="btn btn-ghost" id="btnRefresh">↻ Refresh Statistik</button>
       </div>
     </div>
 
@@ -141,7 +139,7 @@
         Hapus permanen semua sesi dari database. Tindakan ini tidak bisa dibatalkan.
         Pertimbangkan export dulu sebelum hapus.
       </p>
-      <button class="action-btn danger" id="btnDeleteAll">🗑 Hapus Semua Sesi</button>
+      <button class="btn btn-danger" id="btnDeleteAll">🗑 Hapus Semua Sesi</button>
     </div>
 
     <div class="privacy-card">
@@ -150,7 +148,7 @@
         Threshold klasifikasi yang kamu set di Pengaturan tersimpan di browser ini.
         Hapus untuk reset ke default.
       </p>
-      <button class="action-btn ghost" id="btnClearLocal">🧹 Reset Pengaturan Lokal</button>
+      <button class="btn btn-ghost" id="btnClearLocal">🧹 Reset Pengaturan Lokal</button>
     </div>
 
     <div class="privacy-card">
@@ -162,21 +160,18 @@
           <li>Timestamp sesi (waktu mulai)</li>
           <li>Raw samples PPG/GSR <strong>TIDAK disimpan</strong> ke cloud (hanya summary)</li>
         </ul>
-        <br>
         <strong>Dimana disimpan?</strong>
         <ul>
           <li>Database Supabase (region Singapore)</li>
           <li>Mode anonymous — tidak terkait identitas user</li>
           <li>Threshold setting cuma di browser kamu (localStorage)</li>
         </ul>
-        <br>
         <strong>Siapa yang bisa akses?</strong>
         <ul>
           <li>Semua user Euband bisa lihat semua sesi (mode shared pool)</li>
           <li>Tidak ada akun, tidak ada login — semua anonim</li>
         </ul>
-        <br>
-        <strong>Disclaimer:</strong> Aplikasi ini untuk pemantauan personal & edukasi,
+        <strong>Disclaimer:</strong> Aplikasi ini untuk pemantauan personal &amp; edukasi,
         BUKAN pengganti konsultasi medis profesional. Hubungi dokter untuk diagnosis.
       </div>
     </div>
@@ -188,24 +183,18 @@
 
 <script>
   const $ = (id) => document.getElementById(id);
-
   function showToast(msg, isError = false) {
     const toast = $('toast');
     toast.textContent = msg;
-    toast.style.background = isError ? '#4a1c1c' : '#064e3b';
-    toast.style.borderColor = isError ? '#ef4444' : '#10b981';
-    toast.style.color = isError ? '#fca5a5' : '#6ee7b7';
+    toast.classList.toggle('error', isError);
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
   }
-
   function fmtDate(iso) {
     if (!iso) return '—';
     const d = new Date(iso);
     return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
   }
-
-  // ─── Load statistik dari Supabase ───
   async function loadStats() {
     $('totalSessions').textContent = '…';
     $('oldestSession').textContent = '…';
@@ -214,7 +203,6 @@
       const sessions = await window.sessionsApi.list(1000);
       $('totalSessions').textContent = sessions.length;
       if (sessions.length > 0) {
-        // sessions sudah di-sort descending dari API
         $('newestSession').textContent = fmtDate(sessions[0].started_at);
         $('oldestSession').textContent = fmtDate(sessions[sessions.length - 1].started_at);
       } else {
@@ -226,8 +214,6 @@
       showToast('Gagal load statistik: ' + err.message, true);
     }
   }
-
-  // ─── Export semua data ───
   $('btnExport').addEventListener('click', async () => {
     const btn = $('btnExport');
     btn.disabled = true;
@@ -256,13 +242,10 @@
       btn.textContent = '⬇ Export Semua Data (JSON)';
     }
   });
-
-  // ─── Hapus semua ───
   $('btnDeleteAll').addEventListener('click', async () => {
     const totalText = $('totalSessions').textContent;
     if (!confirm(`Hapus ${totalText} sesi PERMANEN dari database?\n\nTindakan ini TIDAK bisa dibatalkan!`)) return;
     if (!confirm('Yakin sekali? Klik OK untuk konfirmasi terakhir.')) return;
-
     const btn = $('btnDeleteAll');
     btn.disabled = true;
     btn.textContent = '🗑 Menghapus...';
@@ -283,17 +266,12 @@
       btn.textContent = '🗑 Hapus Semua Sesi';
     }
   });
-
-  // ─── Reset localStorage ───
   $('btnClearLocal').addEventListener('click', () => {
     if (!confirm('Reset pengaturan threshold ke default?')) return;
     localStorage.removeItem('euband.thresholds.v1');
     showToast('✓ Pengaturan lokal di-reset');
   });
-
   $('btnRefresh').addEventListener('click', loadStats);
-
-  // Init
   loadStats();
 </script>
 </body>
