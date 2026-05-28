@@ -421,3 +421,11 @@ body { display: flex; min-height: 100vh; }
   min-height: 16px;
   font-style: italic;
 }
+
+/* Tombol Simpan ke Cloud — state "tersimpan" */
+.btn-export.saved {
+  background: #064e3b;
+  color: #6ee7b7;
+  border-color: #10b981;
+  cursor: default;
+}

@@ -376,6 +376,9 @@ function handleLine(line) {
     $('btnExportCsv').disabled = true;
     $('btnExportPng').disabled = true;
     $('btnExportReport').disabled = true;
+    $('btnSaveCloud').disabled = true;
+    $('btnSaveCloud').textContent = '☁ Simpan ke Cloud';
+    $('btnSaveCloud').classList.remove('saved');
     if (source === 'BTN') {
       $('hintText').textContent = 'Merekam… (dipicu dari tombol alat). Tekan tombol lagi atau klik Stop di sini untuk berhenti.';
     } else {
@@ -524,34 +527,45 @@ function analyzeAndRender() {
   // Render chart
   drawTrendChart(samples, ppgFilt, gsrFilt);
 
-  // Simpan hasil ke Supabase (anonymous, kalau client tersedia)
-  saveSessionToSupabase(samples, result, fs).catch(err => {
-    log('⚠ Gagal simpan ke cloud: ' + err.message);
-  });
+  // Reset tombol Save ke "siap simpan" — user harus klik manual
+  const btnSave = $('btnSaveCloud');
+  if (btnSave) {
+    btnSave.disabled = false;
+    btnSave.textContent = '☁ Simpan ke Cloud';
+    btnSave.classList.remove('saved');
+  }
 }
 
-// Simpan hasil analisis sesi ke Supabase. Silent kalau Supabase belum
-// dikonfigurasi (mode lokal-only).
-async function saveSessionToSupabase(samples, result, fs) {
-  if (!window.sessionsApi) return;
+// Simpan hasil analisis sesi ke Supabase. Dipanggil oleh klik tombol
+// "Simpan ke Cloud" — bukan otomatis.
+async function saveSessionToSupabase() {
+  if (!window.sessionsApi) {
+    throw new Error('Supabase client belum tersedia');
+  }
+  if (!lastResult || !lastResult.valid) {
+    throw new Error('Belum ada hasil analisis untuk disimpan');
+  }
+  const fs = samples.length > 1
+    ? Math.round(1000 * (samples.length - 1) /
+                 (samples[samples.length - 1].t - samples[0].t))
+    : 100;
   const duration = samples.length > 0
     ? (samples[samples.length - 1].t - samples[0].t) / 1000
     : 0;
   const row = {
-    device_session: null,        // ESP32 session ID — bisa diambil dari header #START kalau perlu
+    device_session: null,
     duration_sec:   Number(duration.toFixed(1)),
     sample_count:   samples.length,
     sample_rate_hz: fs,
-    bpm:            result.bpm > 0 ? Number(result.bpm.toFixed(1)) : null,
-    hrv_sdnn_ms:    result.hrv > 0 ? Number(result.hrv.toFixed(1)) : null,
-    gsr_mean_adc:   result.gsrMean ? Math.round(result.gsrMean) : null,
-    gsr_us:         result.gsrUs > 0 ? Number(result.gsrUs.toFixed(3)) : null,
-    category_gsr:   result.catGsr || '—',
-    category_bpm:   result.catBpm || '—',
-    level:          result.level,
+    bpm:            lastResult.bpm > 0 ? Number(lastResult.bpm.toFixed(1)) : null,
+    hrv_sdnn_ms:    lastResult.hrv > 0 ? Number(lastResult.hrv.toFixed(1)) : null,
+    gsr_mean_adc:   lastResult.gsrMean ? Math.round(lastResult.gsrMean) : null,
+    gsr_us:         lastResult.gsrUs > 0 ? Number(lastResult.gsrUs.toFixed(3)) : null,
+    category_gsr:   lastResult.catGsr || '—',
+    category_bpm:   lastResult.catBpm || '—',
+    level:          lastResult.level,
   };
-  const saved = await window.sessionsApi.create(row);
-  log(`✓ Sesi tersimpan ke cloud (id=${saved.id.slice(0, 8)}...)`);
+  return await window.sessionsApi.create(row);
 }
 
 // ============================================================
@@ -720,6 +734,26 @@ function timestampTag() {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_` +
          `${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
 }
+
+// Simpan hasil analisis ke Supabase (cloud)
+$('btnSaveCloud').addEventListener('click', async () => {
+  const btn = $('btnSaveCloud');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = '☁ Menyimpan…';
+  try {
+    const saved = await saveSessionToSupabase();
+    btn.textContent = '✓ Tersimpan';
+    btn.classList.add('saved');
+    log(`✓ Sesi tersimpan ke cloud (id=${saved.id.slice(0, 8)}...)`);
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = originalText;
+    log('⚠ Gagal simpan ke cloud: ' + err.message);
+    alert('Gagal simpan ke cloud:\n' + err.message);
+  }
+});
 
 // Export raw + filtered samples → CSV
 $('btnExportCsv').addEventListener('click', () => {
