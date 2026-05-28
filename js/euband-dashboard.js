@@ -102,10 +102,13 @@ function adcToMicroSiemens(adc12) {
 }
 
 // Klasifikasi 3 level (parameter baseline):
-//   Normal : GSR 2-4 µS  & HR 70-90
-//   Sedang : GSR 4-6 µS  & HR 90-100
-//   Tinggi : GSR > 6 µS  & HR > 100
-// AND logic: ambil kategori paling rendah antar dua sinyal.
+//   Normal : GSR < 4 µS  & HR < 90
+//   Sedang : GSR 4-6 µS  atau HR 90-100
+//   Tinggi : GSR > 6 µS  atau HR > 100
+// OR logic: ambil kategori paling TINGGI antar dua sinyal.
+// Rasional: stress bisa muncul di salah satu sinyal duluan (mis. GSR naik
+// karena keringat dingin walau denyut belum naik). Lebih sensitif & sesuai
+// intuisi user yang lihat angka GSR tinggi tapi level masih Normal.
 function categorize(gsrUs, bpm) {
   const catGsr =
     gsrUs > 6  ? 'Tinggi' :
@@ -116,7 +119,8 @@ function categorize(gsrUs, bpm) {
     bpm >= 90  ? 'Sedang' :
                  'Normal';      // < 90 → Normal
   const rank = { 'Normal': 0, 'Sedang': 1, 'Tinggi': 2 };
-  const level = rank[catGsr] <= rank[catBpm] ? catGsr : catBpm;
+  // OR: ambil yang paling tinggi
+  const level = rank[catGsr] >= rank[catBpm] ? catGsr : catBpm;
   return { catGsr, catBpm, level };
 }
 
@@ -812,7 +816,7 @@ $('btnExportReport').addEventListener('click', () => {
       level: lastResult.level,
       category_from_gsr: lastResult.catGsr,
       category_from_bpm: lastResult.catBpm,
-      logic: 'AND (level = paling rendah antar GSR & BPM)',
+      logic: 'OR (level = paling tinggi antar GSR & BPM)',
       thresholds: {
         gsr_us: { Normal: '2-4', Sedang: '4-6', Tinggi: '>6' },
         bpm:    { Normal: '70-90', Sedang: '90-100', Tinggi: '>100' },
