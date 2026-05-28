@@ -460,15 +460,24 @@ function handleLine(line) {
     // Beri browser jeda 1 frame supaya UI "100% Menganalisis…" sempat repaint
     // sebelum analyzeAndRender() blocking thread.
     setTimeout(() => {
-      analyzeAndRender();
-      hideDumpModal();
-      $('btnStart').disabled = false;
-      $('btnStop').disabled = true;
-      $('btnStop').textContent = '■ Stop & Analisis';
-      $('btnExportCsv').disabled = false;
-      $('btnExportPng').disabled = false;
-      $('btnExportReport').disabled = false;
-      $('hintText').textContent = 'Analisis selesai. Bisa rekam ulang atau export data.';
+      try {
+        analyzeAndRender();
+        $('hintText').textContent = 'Analisis selesai. Bisa rekam ulang atau export data.';
+      } catch (err) {
+        // JANGAN biarkan modal stuck kalau analyze error
+        console.error('analyzeAndRender error:', err);
+        log('⚠ Error saat analisis: ' + (err && err.message ? err.message : err));
+        $('hintText').textContent = 'Analisis gagal — data tetap bisa di-export. Lihat console untuk detail.';
+      } finally {
+        // SELALU bersihkan UI, tidak peduli sukses/gagal
+        hideDumpModal();
+        $('btnStart').disabled = false;
+        $('btnStop').disabled = true;
+        $('btnStop').textContent = '■ Stop & Analisis';
+        $('btnExportCsv').disabled = false;
+        $('btnExportPng').disabled = false;
+        $('btnExportReport').disabled = false;
+      }
     }, 50);
     return;
   }
@@ -525,9 +534,8 @@ function analyzeAndRender() {
   // Alert banner
   const ab = $('alertBanner');
   ab.style.display = '';
-  ab.classList.remove('normal', 'sedang');
-  ab.classList.add(levelLower === 'tinggi' ? '' : levelLower);
-  if (levelLower !== 'tinggi') ab.classList.add(levelLower);
+  ab.classList.remove('normal', 'sedang', 'tinggi');
+  ab.classList.add(levelLower);    // safe: levelLower selalu non-empty
   $('alertIcon').textContent = result.level[0];
   $('alertLevel').textContent = result.level;
   $('alertText').textContent =
