@@ -29,6 +29,40 @@ let dumpStartedAt  = 0;          // millis saat #BEGIN diterima
 let dumpLastUiTick = 0;          // throttle update UI
 let dumpRateEma    = 0;          // exponential moving average sample/s
 
+// ============================================================
+// sessionStorage persistence — tetap EPHEMERAL (hilang saat tab ditutup)
+// tapi survive saat user navigasi antar menu (coping, pengaturan, dll).
+// Tidak dikirim ke server. Tidak ke localStorage.
+// ============================================================
+const SS_KEY = 'euband.session.v1';
+
+function saveStateToSession() {
+  try {
+    if (!samples.length || !lastResult || !lastResult.valid) return;
+    const payload = {
+      savedAt: Date.now(),
+      samples: samples,        // semua sample raw (in-memory mirror)
+      lastResult: lastResult,  // hasil analisis
+    };
+    sessionStorage.setItem(SS_KEY, JSON.stringify(payload));
+  } catch (err) {
+    // Quota exceeded? Sample banyak (mis. 30k+) bisa kepenuhan quota ~5MB.
+    console.warn('saveStateToSession failed:', err.message);
+  }
+}
+
+function loadStateFromSession() {
+  try {
+    const raw = sessionStorage.getItem(SS_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+function clearStateFromSession() {
+  sessionStorage.removeItem(SS_KEY);
+}
+
 // ===== DOM helpers =====
 const $ = (id) => document.getElementById(id);
 const log = (msg) => {
@@ -382,6 +416,8 @@ function handleLine(line) {
     const source = kv.source || 'BLE';
     // Update UI sesuai state RECORDING
     samples = []; inDump = false; sessionStartMs = Date.now();
+    lastResult = null;
+    clearStateFromSession();   // sesi baru → buang sesi lama dari sessionStorage
     $('btnStart').disabled = true;
     $('btnStop').disabled = false;
     $('btnExportCsv').disabled = true;
@@ -551,6 +587,9 @@ function analyzeAndRender() {
     btnEnd.disabled = false;
     btnEnd.textContent = '■ Hentikan Sesi';
   }
+
+  // Simpan ke sessionStorage supaya data survive saat pindah menu
+  saveStateToSession();
 }
 
 // ============================================================
@@ -559,6 +598,9 @@ function analyzeAndRender() {
 // Sesuai prinsip privasi: data ephemeral, tidak tersimpan di server.
 // ============================================================
 function endSession() {
+  // 0. Clear sessionStorage juga supaya tidak ke-restore lagi
+  clearStateFromSession();
+
   // 1. Clear data in-memory
   samples = [];
   lastResult = null;
@@ -939,3 +981,62 @@ document.querySelectorAll('.nav-item').forEach(item => {
 
 // Initial state
 setConnStatus('Hubungkan Perangkat', false);
+
+// Restore sesi sebelumnya dari sessionStorage (kalau ada).
+// Ini bikin data survive saat user navigasi antar menu — tetap ephemeral
+// karena sessionStorage auto-clear saat tab ditutup.
+(function restorePreviousSession() {
+  const saved = loadStateFromSession();
+  if (!saved || !saved.samples || !saved.samples.length) return;
+  try {
+    samples = saved.samples;
+    lastResult = saved.lastResult || null;
+
+    // Re-render chart & stat cards dari data yang di-restore
+    const fs = samples.length > 1
+      ? Math.round(1000 / ((samples[samples.length - 1].t - samples[0].t) / (samples.length - 1)))
+      : 100;
+    const ppgRaw  = samples.map(s => s.ppg);
+    const gsrRaw  = samples.map(s => s.gsr);
+    const ppgFilt = bandpass(ppgRaw, 0.5, 3, fs);
+    const gsrFilt = lowpass(gsrRaw, 0.5, fs);
+
+    // Update stat cards manual (tidak re-run analyzeStress supaya konsisten)
+    if (lastResult && lastResult.valid) {
+      const levelLower = lastResult.level.toLowerCase();
+      $('statLevel').textContent = lastResult.level;
+      $('cardStress').classList.remove('normal', 'sedang', 'tinggi');
+      $('cardStress').classList.add(levelLower);
+      $('statBpm').textContent = lastResult.bpm > 0 ? lastResult.bpm.toFixed(0) : '—';
+      $('statGsr').textContent = lastResult.gsrUs > 0 ? lastResult.gsrUs.toFixed(2) : '—';
+      ['pillNormal', 'pillSedang', 'pillTinggi'].forEach((id) => {
+        $(id).classList.toggle('active', $(id).textContent.toLowerCase() === levelLower);
+      });
+      const ab = $('alertBanner');
+      ab.style.display = '';
+      ab.classList.remove('normal', 'sedang', 'tinggi');
+      ab.classList.add(levelLower);
+      $('alertIcon').textContent = lastResult.level[0];
+      $('alertLevel').textContent = lastResult.level;
+      $('alertText').textContent =
+        levelLower === 'normal'  ? 'Kondisi fisiologis baik. Pertahankan dengan istirahat cukup.' :
+        levelLower === 'sedang'  ? 'Stres sedang terdeteksi. Coba teknik pernapasan atau istirahat singkat.' :
+                                   'Stres tinggi terdeteksi. Segera istirahat dan pertimbangkan konsultasi ke konselor.';
+    }
+
+    drawTrendChart(samples, ppgFilt, gsrFilt);
+
+    // Enable tombol export & end session
+    $('btnExportCsv').disabled    = false;
+    $('btnExportPng').disabled    = false;
+    $('btnExportReport').disabled = false;
+    const btnEnd = $('btnEndSession');
+    if (btnEnd) { btnEnd.disabled = false; btnEnd.textContent = '■ Hentikan Sesi'; }
+
+    $('hintText').textContent = 'Sesi sebelumnya dipulihkan. Data akan hilang saat tab ditutup atau Hentikan Sesi.';
+    log(`↻ Sesi sebelumnya dipulihkan (${samples.length} sample)`);
+  } catch (err) {
+    console.warn('Failed to restore session:', err);
+    clearStateFromSession();
+  }
+})();

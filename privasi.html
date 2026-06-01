@@ -193,8 +193,17 @@
         <strong>Bagaimana data sesi hilang?</strong>
         <ul>
           <li>Klik tombol <strong>"Hentikan Sesi"</strong> di Dashboard</li>
-          <li>Refresh halaman / tutup tab browser</li>
+          <li>Tutup tab browser (otomatis terhapus oleh browser)</li>
           <li>Mulai sesi rekam baru (sesi lama otomatis ter-replace)</li>
+        </ul>
+
+        <strong>Penyimpanan sementara di browser (sessionStorage)</strong>
+        <ul>
+          <li>Saat sesi aktif, hasil analisis tersimpan di <code>sessionStorage</code>
+            browser supaya tidak hilang waktu Anda berpindah antar menu</li>
+          <li>Ini <strong>bukan</strong> penyimpanan permanen — browser otomatis hapus
+            saat tab ditutup</li>
+          <li>Tidak dikirim ke server mana pun</li>
         </ul>
 
         <strong>Bagaimana cara backup data?</strong>
