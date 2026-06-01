@@ -27,7 +27,7 @@ Panduan setup project Euband dari nol sampai live di `euband.vercel.app`.
 1. **Settings → API**
 2. Copy 2 nilai:
    - **Project URL** → `https://xxx.supabase.co`
-   - **anon public** key → `eyJxxx...` (string panjang)
+   - **anon public** key → `` (string panjang)
 3. Buka `js/config.js` di project ini, ganti placeholder:
    ```js
    SUPABASE_URL:      'https://xxx.supabase.co',
