@@ -129,6 +129,81 @@
     gap: 14px;
   }
 
+  /* Emergency banner — khusus level Tinggi */
+  .emergency-banner {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 2px solid #ef4444;
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .emergency-icon {
+    font-size: 40px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .emergency-content { flex-grow: 1; }
+  .emergency-title {
+    color: #991b1b;
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .emergency-text {
+    color: #7f1d1d;
+    font-size: 13.5px;
+    line-height: 1.55;
+    margin: 0 0 14px;
+  }
+  .emergency-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .emergency-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .emergency-btn.primary {
+    background: #ef4444;
+    color: white;
+    box-shadow: 0 2px 8px rgba(239,68,68,0.3);
+  }
+  .emergency-btn.primary:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239,68,68,0.4);
+  }
+  .emergency-btn.secondary {
+    background: white;
+    color: #991b1b;
+    border: 1.5px solid #ef4444;
+  }
+  .emergency-btn.secondary:hover {
+    background: #fef2f2;
+    transform: translateY(-1px);
+  }
+  .emergency-divider {
+    margin: 6px 0 14px;
+    padding: 8px 0;
+    border-top: 1px dashed #94a3b8;
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
   .strategy-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -295,8 +370,8 @@
     tinggi: {
       title: 'Stres Tinggi',
       emoji: '🚨',
-      desc: 'Stres tinggi terdeteksi. Butuh intervensi cepat untuk menurunkan aktivasi sistem saraf.',
-      subtitle: 'Strategi intervensi & stabilisasi cepat',
+      desc: 'Stres tinggi terdeteksi. Disarankan hubungi konselor profesional — strategi mandiri sebagai pendukung.',
+      subtitle: 'Eskalasi ke konselor + strategi stabilisasi cepat',
       strategies: [
         {
           name: 'Grounding (5-4-3-2-1)',
@@ -411,6 +486,32 @@
       </div>
     `).join('');
 
+    // Emergency banner — hanya tampil untuk level Tinggi
+    const emergencyBanner = (level === 'tinggi') ? `
+      <div class="emergency-banner">
+        <div class="emergency-icon">🚨</div>
+        <div class="emergency-content">
+          <p class="emergency-title">Stres Tinggi Terdeteksi — Segera Hubungi Konselor</p>
+          <p class="emergency-text">
+            Untuk tingkat stres tinggi, sangat disarankan menghubungi <strong>layanan
+            konseling profesional</strong> dibanding hanya mengandalkan strategi mandiri.
+            Konselor terlatih dapat membantu menangani stres berat dengan pendekatan
+            klinis yang tepat.
+          </p>
+          <div class="emergency-actions">
+            <a href="tel:+6282130155601" class="emergency-btn primary">
+              📞 Hubungi: +62 821-3015-5601
+            </a>
+            <a href="https://studentaffairs.telkomuniversity.ac.id/konseling/"
+               target="_blank" rel="noopener" class="emergency-btn secondary">
+              🌐 Website Konseling Telkom
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="emergency-divider">Atau coba strategi mandiri berikut sambil menunggu</div>
+    ` : '';
+
     container.innerHTML = `
       <button class="strategy-back" id="btnBack">← Kembali pilih tingkat</button>
       <div class="strategy-header ${level}">
@@ -420,6 +521,7 @@
           <p>${data.subtitle} · ${data.strategies.length} strategi berbasis bukti ilmiah</p>
         </div>
       </div>
+      ${emergencyBanner}
       <section class="strategy-grid">${strategies}</section>
     `;
 
