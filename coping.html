@@ -6,79 +6,179 @@
 <title>Coping — Euband</title>
 <link rel="stylesheet" href="./css/euband.css" />
 <style>
-  /* Light-theme coping page (match dashboard) */
-  .coping-grid {
+  /* ===== Step 1: Level selector ===== */
+  .level-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
+    margin-bottom: 16px;
   }
-  .coping-card-big {
+  @media (max-width: 900px) { .level-grid { grid-template-columns: 1fr; } }
+
+  .level-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 22px;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  }
+  .level-card.normal:hover { border-color: #10b981; }
+  .level-card.sedang:hover { border-color: #f59e0b; }
+  .level-card.tinggi:hover { border-color: #ef4444; }
+
+  /* Strip warna di atas card */
+  .level-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 6px;
+  }
+  .level-card.normal::before { background: #10b981; }
+  .level-card.sedang::before { background: #f59e0b; }
+  .level-card.tinggi::before { background: #ef4444; }
+
+  .level-emoji { font-size: 56px; margin: 10px 0 10px; line-height: 1; }
+  .level-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .level-title.normal { color: #047857; }
+  .level-title.sedang { color: #b45309; }
+  .level-title.tinggi { color: #b91c1c; }
+
+  .level-desc {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+    margin-bottom: 16px;
+    min-height: 60px;
+  }
+  .level-cta {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #f3f4f6;
+    color: var(--text);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background .15s ease;
+  }
+  .level-card:hover .level-cta {
+    background: var(--blue); color: white;
+  }
+  .level-card .strategy-count {
+    color: var(--muted2);
+    font-size: 11px;
+    margin-bottom: 14px;
+  }
+
+  /* Highlight kalau sesuai sesi aktif */
+  .level-card.active-session {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+  }
+  .session-badge {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: var(--blue);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* ===== Step 2: Strategy list ===== */
+  .strategy-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--blue);
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; margin-bottom: 16px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background .15s ease;
+    background: transparent;
+    border: 1px solid transparent;
+  }
+  .strategy-back:hover { background: #eff6ff; }
+
+  .strategy-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 20px;
+    border-left: 6px solid;
+  }
+  .strategy-header.normal { border-left-color: #10b981; }
+  .strategy-header.sedang { border-left-color: #f59e0b; }
+  .strategy-header.tinggi { border-left-color: #ef4444; }
+  .strategy-header-emoji { font-size: 36px; }
+  .strategy-header h2 { margin: 0 0 4px; font-size: 20px; color: var(--text); }
+  .strategy-header p  { margin: 0; color: var(--muted); font-size: 13px; }
+
+  .strategy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  .strategy-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 20px;
-    display: flex; flex-direction: column;
-    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    padding: 18px 20px;
+    transition: transform .15s ease, box-shadow .15s ease;
   }
-  .coping-card-big:hover {
+  .strategy-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-    border-color: #cbd5e1;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
   }
-  .coping-emoji { font-size: 36px; margin-bottom: 8px; }
-  .coping-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .coping-duration { color: var(--muted); font-size: 12px; margin-bottom: 12px; }
-  .coping-desc { color: #4b5563; font-size: 13px; line-height: 1.55; margin-bottom: 12px; flex-grow: 1; }
-  .coping-steps { color: var(--muted); font-size: 12px; margin-bottom: 16px; padding-left: 18px; }
-  .coping-steps li { margin-bottom: 4px; }
 
-  /* Tombol pakai class .btn .btn-primary dari euband.css */
-
-  /* Timer modal — match light theme dengan accent biru */
-  .timer-overlay {
-    position: fixed; inset: 0;
-    background: rgba(15, 23, 42, 0.55);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    display: none;
-    align-items: center; justify-content: center;
-    z-index: 9999;
-  }
-  .timer-overlay.active { display: flex; }
-  .timer-modal {
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 36px 32px;
-    width: min(420px, calc(100vw - 32px));
-    text-align: center; color: var(--text);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-  }
-  .timer-modal h2 { font-size: 22px; margin: 0 0 8px; color: var(--text); }
-  .timer-modal .desc { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
-
-  .timer-circle {
-    width: 200px; height: 200px;
-    margin: 0 auto 20px;
+  .strategy-num {
+    display: inline-block;
+    width: 26px; height: 26px;
+    line-height: 26px;
+    background: #f3f4f6;
+    color: var(--text);
     border-radius: 50%;
-    background: conic-gradient(var(--blue) var(--p, 0%), #e5e7eb 0);
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
   }
-  .timer-circle-inner {
-    width: 170px; height: 170px;
-    background: #ffffff; border-radius: 50%;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
+  .strategy-card.normal .strategy-num { background: #d1fae5; color: #047857; }
+  .strategy-card.sedang .strategy-num { background: #fef3c7; color: #b45309; }
+  .strategy-card.tinggi .strategy-num { background: #fee2e2; color: #b91c1c; }
+
+  .strategy-name {
+    font-size: 16px; font-weight: 700;
+    color: var(--text); margin-bottom: 10px;
   }
-  .timer-value { font-size: 42px; font-weight: 700; color: var(--text); }
-  .timer-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
-  .timer-instr {
-    color: #374151; font-size: 14px; margin-bottom: 24px;
-    min-height: 40px; line-height: 1.4;
-    background: #f9fafb; padding: 10px;
-    border-radius: 8px; border: 1px solid var(--border);
+  .strategy-recommend {
+    background: #f9fafb;
+    border-left: 3px solid var(--blue);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1f2937;
+    line-height: 1.55;
+    font-style: italic;
+    margin-bottom: 12px;
   }
-  .timer-actions { display: flex; gap: 10px; justify-content: center; }
+  .strategy-ref {
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px dashed var(--border);
+    padding-top: 8px;
+  }
+  .strategy-ref strong { color: var(--text); }
 </style>
 </head>
 <body>
@@ -107,169 +207,246 @@
 <main class="main">
   <header class="header">
     <div>
-      <h1 class="title">Strategi Coping</h1>
-      <p class="subtitle">Teknik manajemen stres berbasis bukti — pilih sesuai kebutuhan</p>
+      <h1 class="title" id="pageTitle">Strategi Coping</h1>
+      <p class="subtitle" id="pageSubtitle">Pilih tingkat stres untuk lihat rekomendasi strategi</p>
     </div>
   </header>
 
-  <section class="coping-grid" id="copingGrid"></section>
+  <!-- Container utama: di-swap antara level selector & strategy list -->
+  <div id="copingContainer"></div>
 </main>
 
-<!-- Timer modal -->
-<div class="timer-overlay" id="timerOverlay">
-  <div class="timer-modal">
-    <h2 id="tmTitle">—</h2>
-    <p class="desc" id="tmDesc">—</p>
-    <div class="timer-circle" id="tmCircle">
-      <div class="timer-circle-inner">
-        <div class="timer-value" id="tmValue">0:00</div>
-        <div class="timer-label">tersisa</div>
-      </div>
-    </div>
-    <div class="timer-instr" id="tmInstr">—</div>
-    <div class="timer-actions">
-      <button class="btn btn-danger" id="tmStop">■ Hentikan</button>
-    </div>
-  </div>
-</div>
-
 <script>
-  const TECHNIQUES = [
-    {
-      id: 'breathing-478', emoji: '🌬️', title: 'Pernapasan 4-7-8', duration: 4,
-      desc: 'Teknik pernapasan Dr. Andrew Weil — efektif menenangkan sistem saraf simpatik dalam 4 menit.',
-      steps: ['Tarik napas lewat hidung 4 detik','Tahan napas 7 detik','Hembuskan lewat mulut 8 detik','Ulangi 4 siklus'],
-      instructions: (sec) => {
-        const cycle = sec % 19;
-        if (cycle < 4)  return `Tarik napas... (${4 - cycle})`;
-        if (cycle < 11) return `Tahan napas... (${11 - cycle})`;
-        return `Hembuskan... (${19 - cycle})`;
-      },
+  // ============================================================
+  // Data strategi coping (dari coping.txt, 3 tingkat stress)
+  // ============================================================
+  const COPING_DATA = {
+    normal: {
+      title: 'Stres Normal',
+      emoji: '🌿',
+      desc: 'Kondisi fisiologis baik. Pertahankan & cegah eskalasi dengan strategi preventif.',
+      subtitle: 'Strategi pemeliharaan & pencegahan stres',
+      strategies: [
+        {
+          name: 'Mindfulness',
+          recommend: 'Ambil 2 menit untuk pernapasan sadar.',
+          ref: 'Khoury et al., 2015 — Mindfulness',
+        },
+        {
+          name: 'Aktivitas Fisik Ringan',
+          recommend: 'Jalan kaki atau peregangan 5 menit.',
+          ref: 'Zhang et al., 2021 — Front Public Health',
+        },
+        {
+          name: 'Journaling Positif',
+          recommend: 'Tulis satu hal yang kamu syukuri hari ini.',
+          ref: 'Smyth et al., 2018 — JMIR Mental Health',
+        },
+        {
+          name: 'Positive Reappraisal',
+          recommend: 'Ubah tantangan jadi peluang belajar.',
+          ref: 'Garland et al., 2011 — Anxiety Stress Coping',
+        },
+        {
+          name: 'Koneksi Sosial',
+          recommend: 'Sapa teman atau keluarga hari ini.',
+          ref: 'Nguyen et al., 2024 — PLOS One',
+        },
+      ],
     },
-    {
-      id: 'box-breathing', emoji: '🟦', title: 'Box Breathing', duration: 5,
-      desc: 'Teknik militer Navy SEAL — pernapasan kotak untuk fokus dan ketenangan cepat.',
-      steps: ['Tarik napas 4 detik','Tahan 4 detik','Hembuskan 4 detik','Tahan 4 detik (kosong)'],
-      instructions: (sec) => {
-        const cycle = sec % 16;
-        if (cycle < 4)  return `Tarik napas... (${4 - cycle})`;
-        if (cycle < 8)  return `Tahan... (${8 - cycle})`;
-        if (cycle < 12) return `Hembuskan... (${12 - cycle})`;
-        return `Tahan kosong... (${16 - cycle})`;
-      },
+    sedang: {
+      title: 'Stres Sedang',
+      emoji: '⚠️',
+      desc: 'Stres sedang terdeteksi. Atasi dengan teknik regulasi emosi & restrukturisasi kognitif.',
+      subtitle: 'Strategi regulasi & pemecahan masalah',
+      strategies: [
+        {
+          name: 'Cognitive Restructuring (CBT)',
+          recommend: 'Coba tantang pikiran negatif dengan fakta.',
+          ref: 'Borkovec et al., 2002 — Clinical Psychological Science Practice',
+        },
+        {
+          name: 'Problem-Focused Coping',
+          recommend: 'Buat daftar solusi untuk masalah yang dihadapi.',
+          ref: 'Kim et al., 2024 — Psychiatry Investigation',
+        },
+        {
+          name: 'Progressive Muscle Relaxation (PMR)',
+          recommend: 'Coba relaksasi otot: tegangkan lalu rilekskan otot.',
+          ref: 'Lehrer & Woolfolk, 2021 — Stress Management',
+        },
+        {
+          name: 'Pernapasan Dalam',
+          recommend: 'Tarik napas dalam, hembuskan perlahan selama 1 menit.',
+          ref: 'Sadeghi et al., 2024 — Complementary Therapies in Medicine',
+        },
+        {
+          name: 'Dukungan Sosial',
+          recommend: 'Hubungi teman/keluarga untuk berbagi cerita.',
+          ref: 'Araya et al., 2024 — Psychological Medicine',
+        },
+        {
+          name: 'Goal Setting',
+          recommend: 'Tentukan target kecil dan rayakan pencapaiannya.',
+          ref: 'Borkovec et al., 2002 — Clinical Psychological Science Practice',
+        },
+      ],
     },
-    {
-      id: 'rest-screen', emoji: '🧘', title: 'Istirahat dari Layar', duration: 10,
-      desc: 'Aturan 20-20-20: setiap 20 menit, lihat objek 20 kaki jauhnya selama 20 detik. Bagus untuk mata & stres digital.',
-      steps: ['Tutup layar / palingkan pandangan','Cari objek jauh (jendela, dinding)','Fokus & rileks otot mata','Hindari notifikasi selama 10 menit'],
-      instructions: (sec) => {
-        if (sec < 60) return 'Mulai dengan tarik napas dalam...';
-        if (sec < 300) return 'Pertahankan fokus jauh, rileks bahu...';
-        return 'Hampir selesai — siap kembali fokus.';
-      },
+    tinggi: {
+      title: 'Stres Tinggi',
+      emoji: '🚨',
+      desc: 'Stres tinggi terdeteksi. Butuh intervensi cepat untuk menurunkan aktivasi sistem saraf.',
+      subtitle: 'Strategi intervensi & stabilisasi cepat',
+      strategies: [
+        {
+          name: 'Grounding (5-4-3-2-1)',
+          recommend: 'Coba teknik grounding: sebut 5 hal yang kamu lihat, 4 yang kamu rasakan, 3 yang kamu dengar, 2 yang kamu cium, dan 1 yang kamu rasakan.',
+          ref: 'Trauma-Informed Care Guidelines',
+        },
+        {
+          name: 'Guided Relaxation / Mindfulness',
+          recommend: 'Ikuti panduan relaksasi atau meditasi singkat.',
+          ref: 'Kabat-Zinn et al., 2016 — Mindfulness-Based Stress Reduction',
+        },
+        {
+          name: 'Emergency Breathing Protocols',
+          recommend: 'Tarik napas perlahan, tahan, lalu hembuskan perlahan.',
+          ref: 'Sadeghi et al., 2024 — Complementary Therapies in Medicine',
+        },
+        {
+          name: 'Aktivasi Dukungan Sosial',
+          recommend: 'Segera hubungi orang yang kamu percaya.',
+          ref: 'Araya et al., 2024 — Psychological Medicine',
+        },
+        {
+          name: 'Referral to Professional',
+          recommend: 'Jika stres berat berlanjut, segera konsultasi dengan profesional.',
+          ref: 'WHO Mental Health Guidelines',
+        },
+        {
+          name: 'Gentle Movement / Stretching',
+          recommend: 'Lakukan peregangan ringan untuk meredakan ketegangan.',
+          ref: 'Smith, 2001 — Perceptual and Motor Skills',
+        },
+      ],
     },
-    {
-      id: 'journaling', emoji: '📝', title: 'Journaling Emosi', duration: 15,
-      desc: 'Tulis perasaan & pikiran tanpa filter selama 15 menit. Terbukti mengurangi rumination & cemas.',
-      steps: ['Ambil kertas / buka catatan','Tulis apa yang dirasakan tanpa edit','Identifikasi 1 trigger utama','Tulis 1 hal yang disyukuri'],
-      instructions: (sec) => {
-        if (sec < 60)  return 'Mulai dengan: "Saat ini saya merasa..."';
-        if (sec < 300) return 'Tulis bebas, tanpa menilai diri sendiri.';
-        if (sec < 720) return 'Coba identifikasi trigger utamanya...';
-        return 'Tutup dengan 1 hal yang disyukuri hari ini.';
-      },
-    },
-    {
-      id: 'grounding-54321', emoji: '🌱', title: 'Grounding 5-4-3-2-1', duration: 5,
-      desc: 'Teknik grounding sensorik untuk panik / overthinking. Fokus ke 5 indera sekarang juga.',
-      steps: ['5 hal yang BISA DILIHAT','4 hal yang BISA DISENTUH','3 hal yang BISA DIDENGAR','2 hal yang BISA DICIUM','1 hal yang BISA DIRASAKAN'],
-      instructions: (sec) => {
-        if (sec < 60)  return 'Sebutkan 5 hal yang BISA KAMU LIHAT sekarang';
-        if (sec < 120) return 'Sentuh 4 benda di sekitarmu — rasakan teksturnya';
-        if (sec < 180) return 'Dengarkan 3 suara berbeda di sekitarmu';
-        if (sec < 240) return 'Cium 2 aroma di sekitarmu';
-        return 'Rasakan 1 hal — rasa di mulut, kulit, atau emosi';
-      },
-    },
-    {
-      id: 'progressive-relax', emoji: '💆', title: 'Progressive Muscle Relax', duration: 8,
-      desc: 'Tegangkan & lepas tiap kelompok otot secara berurutan. Efektif untuk ketegangan fisik akibat stres.',
-      steps: ['Tegangkan otot kaki 5 detik, lepas','Lanjut perut, dada, tangan','Akhiri dengan wajah & rahang','Rasakan beda antara tegang & rileks'],
-      instructions: (sec) => {
-        const zones = ['kaki', 'paha', 'perut', 'dada', 'tangan', 'bahu', 'wajah', 'seluruh tubuh'];
-        const idx = Math.min(Math.floor(sec / 60), zones.length - 1);
-        return `Fokus ke: ${zones[idx]} — tegangkan 5 detik, lepas`;
-      },
-    },
-  ];
+  };
 
-  const grid = document.getElementById('copingGrid');
-  grid.innerHTML = TECHNIQUES.map(t => `
-    <div class="coping-card-big">
-      <div class="coping-emoji">${t.emoji}</div>
-      <div class="coping-title">${t.title}</div>
-      <div class="coping-duration">⏱ ${t.duration} menit</div>
-      <div class="coping-desc">${t.desc}</div>
-      <ol class="coping-steps">
-        ${t.steps.map(s => `<li>${s}</li>`).join('')}
-      </ol>
-      <button class="btn btn-primary" data-id="${t.id}">▶ Mulai Sesi</button>
-    </div>
-  `).join('');
-
-  // ─── Timer logic ───
-  let timerInterval = null;
-  let timerStartMs  = 0;
-  let timerDurSec   = 0;
-  let activeTechnique = null;
-  const overlay = document.getElementById('timerOverlay');
-  const tmTitle = document.getElementById('tmTitle');
-  const tmDesc  = document.getElementById('tmDesc');
-  const tmValue = document.getElementById('tmValue');
-  const tmInstr = document.getElementById('tmInstr');
-  const tmCircle = document.getElementById('tmCircle');
-  const tmStop  = document.getElementById('tmStop');
-
-  function startTimer(technique) {
-    activeTechnique = technique;
-    timerDurSec  = technique.duration * 60;
-    timerStartMs = Date.now();
-    tmTitle.textContent = technique.title;
-    tmDesc.textContent  = `${technique.duration} menit — ${technique.steps[0]}`;
-    overlay.classList.add('active');
-    tick();
-    timerInterval = setInterval(tick, 500);
+  // ============================================================
+  // Detect level sesi aktif dari sessionStorage (kalau ada)
+  // ============================================================
+  function getActiveSessionLevel() {
+    try {
+      const raw = sessionStorage.getItem('euband.session.v1');
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      const level = data?.lastResult?.level;
+      if (!level) return null;
+      return level.toLowerCase();   // 'normal' | 'sedang' | 'tinggi'
+    } catch { return null; }
   }
-  function stopTimer(completed = false) {
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = null;
-    overlay.classList.remove('active');
-    if (completed) {
-      setTimeout(() => alert(`✓ Selesai: ${activeTechnique.title}\n\nSemoga lebih tenang!`), 200);
-    }
-    activeTechnique = null;
-  }
-  function tick() {
-    const elapsedSec = Math.floor((Date.now() - timerStartMs) / 1000);
-    const remaining  = Math.max(0, timerDurSec - elapsedSec);
-    const mm = Math.floor(remaining / 60);
-    const ss = remaining % 60;
-    tmValue.textContent = `${mm}:${ss.toString().padStart(2, '0')}`;
-    const pct = ((timerDurSec - remaining) / timerDurSec) * 100;
-    tmCircle.style.setProperty('--p', pct + '%');
-    if (activeTechnique && activeTechnique.instructions) {
-      tmInstr.textContent = activeTechnique.instructions(elapsedSec);
-    }
-    if (remaining === 0) stopTimer(true);
-  }
 
-  grid.querySelectorAll('button[data-id]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const technique = TECHNIQUES.find(t => t.id === btn.dataset.id);
-      if (technique) startTimer(technique);
+  // ============================================================
+  // Render: Step 1 (level selector)
+  // ============================================================
+  function renderLevelSelector() {
+    document.getElementById('pageTitle').textContent = 'Strategi Coping';
+    document.getElementById('pageSubtitle').textContent =
+      'Pilih tingkat stres untuk lihat rekomendasi strategi yang sesuai';
+
+    const activeLevel = getActiveSessionLevel();
+    const container = document.getElementById('copingContainer');
+
+    const levelInfo = activeLevel
+      ? `<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1e40af;">
+           💡 Sesi aktif terdeteksi dengan tingkat <strong>${activeLevel.toUpperCase()}</strong> —
+           direkomendasikan strategi untuk level tersebut (ditandai).
+         </div>`
+      : '';
+
+    const cards = ['normal', 'sedang', 'tinggi'].map(key => {
+      const data = COPING_DATA[key];
+      const isActive = activeLevel === key;
+      return `
+        <div class="level-card ${key} ${isActive ? 'active-session' : ''}" data-level="${key}">
+          ${isActive ? '<div class="session-badge">Sesi Anda</div>' : ''}
+          <div class="level-emoji">${data.emoji}</div>
+          <div class="level-title ${key}">${data.title}</div>
+          <div class="level-desc">${data.desc}</div>
+          <div class="strategy-count">${data.strategies.length} strategi</div>
+          <div class="level-cta">Lihat Strategi →</div>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = levelInfo + `<section class="level-grid">${cards}</section>`;
+
+    // Wire klik card
+    container.querySelectorAll('.level-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const level = card.dataset.level;
+        renderStrategyList(level);
+      });
     });
-  });
-  tmStop.addEventListener('click', () => stopTimer(false));
+  }
+
+  // ============================================================
+  // Render: Step 2 (strategy detail per level)
+  // ============================================================
+  function renderStrategyList(level) {
+    const data = COPING_DATA[level];
+    if (!data) return;
+
+    document.getElementById('pageTitle').textContent = data.title;
+    document.getElementById('pageSubtitle').textContent = data.subtitle;
+
+    const container = document.getElementById('copingContainer');
+
+    const strategies = data.strategies.map((s, i) => `
+      <div class="strategy-card ${level}">
+        <div class="strategy-num">${i + 1}</div>
+        <div class="strategy-name">${escapeHtml(s.name)}</div>
+        <div class="strategy-recommend">"${escapeHtml(s.recommend)}"</div>
+        <div class="strategy-ref"><strong>Referensi:</strong> ${escapeHtml(s.ref)}</div>
+      </div>
+    `).join('');
+
+    container.innerHTML = `
+      <button class="strategy-back" id="btnBack">← Kembali pilih tingkat</button>
+      <div class="strategy-header ${level}">
+        <div class="strategy-header-emoji">${data.emoji}</div>
+        <div>
+          <h2>${data.title}</h2>
+          <p>${data.subtitle} · ${data.strategies.length} strategi berbasis bukti ilmiah</p>
+        </div>
+      </div>
+      <section class="strategy-grid">${strategies}</section>
+    `;
+
+    document.getElementById('btnBack').addEventListener('click', renderLevelSelector);
+
+    // Scroll ke atas
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ============================================================
+  // Helpers
+  // ============================================================
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  // ============================================================
+  // Init — kalau URL ada ?level=xxx, langsung ke detail
+  // ============================================================
+  const urlLevel = new URLSearchParams(location.search).get('level');
+  if (urlLevel && COPING_DATA[urlLevel.toLowerCase()]) {
+    renderStrategyList(urlLevel.toLowerCase());
+  } else {
+    renderLevelSelector();
+  }
 </script>
 </body>
 </html>
