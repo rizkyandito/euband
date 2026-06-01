@@ -37,26 +37,60 @@ let dumpRateEma    = 0;          // exponential moving average sample/s
 const SS_KEY = 'euband.session.v1';
 
 function saveStateToSession() {
+  if (!samples.length) {
+    console.warn('[Euband] saveState skipped: no samples');
+    return;
+  }
+  if (!lastResult || !lastResult.valid) {
+    console.warn('[Euband] saveState skipped: lastResult invalid', lastResult);
+    return;
+  }
+  const payload = {
+    savedAt: Date.now(),
+    samples: samples,
+    lastResult: lastResult,
+  };
+  const json = JSON.stringify(payload);
+  const sizeKb = Math.round(json.length / 1024);
   try {
-    if (!samples.length || !lastResult || !lastResult.valid) return;
-    const payload = {
-      savedAt: Date.now(),
-      samples: samples,        // semua sample raw (in-memory mirror)
-      lastResult: lastResult,  // hasil analisis
-    };
-    sessionStorage.setItem(SS_KEY, JSON.stringify(payload));
+    sessionStorage.setItem(SS_KEY, json);
+    console.log(`[Euband] ✓ Sesi tersimpan di sessionStorage (${samples.length} sample, ${sizeKb} KB)`);
   } catch (err) {
-    // Quota exceeded? Sample banyak (mis. 30k+) bisa kepenuhan quota ~5MB.
-    console.warn('saveStateToSession failed:', err.message);
+    // Quota exceeded (~5MB). Fallback: simpan tanpa samples (cuma hasil analisis +
+    // sample subset untuk re-render chart). Min jadi ~50 KB.
+    console.warn(`[Euband] sessionStorage quota exceeded (${sizeKb} KB), trying downsample`, err);
+    try {
+      // Downsample ke max 3000 sample (cukup untuk chart visual)
+      const stride = Math.max(1, Math.ceil(samples.length / 3000));
+      const downsampled = samples.filter((_, i) => i % stride === 0);
+      const fallback = {
+        savedAt: Date.now(),
+        samples: downsampled,
+        lastResult: lastResult,
+        downsampled: true,
+      };
+      sessionStorage.setItem(SS_KEY, JSON.stringify(fallback));
+      console.log(`[Euband] ✓ Sesi tersimpan (downsampled ${downsampled.length} sample)`);
+    } catch (err2) {
+      console.error('[Euband] saveStateToSession failed even after downsample:', err2);
+    }
   }
 }
 
 function loadStateFromSession() {
   try {
     const raw = sessionStorage.getItem(SS_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch { return null; }
+    if (!raw) {
+      console.log('[Euband] loadState: no saved session in sessionStorage');
+      return null;
+    }
+    const parsed = JSON.parse(raw);
+    console.log(`[Euband] ↻ loadState: found ${parsed.samples?.length || 0} samples${parsed.downsampled ? ' (downsampled)' : ''}`);
+    return parsed;
+  } catch (err) {
+    console.warn('[Euband] loadState parse error:', err);
+    return null;
+  }
 }
 
 function clearStateFromSession() {
