@@ -851,6 +851,20 @@ $('btnEndSession').addEventListener('click', () => {
   endSession();
 });
 
+// Lihat Rekomendasi — buka halaman Coping dengan level sesuai hasil analisis
+$('alertAction').addEventListener('click', () => {
+  // Ambil level dari lastResult kalau ada, fallback dari text di alert
+  let level = (lastResult && lastResult.level) || $('alertLevel').textContent;
+  level = String(level).toLowerCase().trim();
+  // Map 'normal' / 'sedang' / 'tinggi' ke URL param coping.html
+  const validLevels = ['normal', 'sedang', 'tinggi'];
+  if (validLevels.includes(level)) {
+    window.location.href = `./coping.html?level=${level}`;
+  } else {
+    window.location.href = './coping.html';
+  }
+});
+
 // Export raw + filtered samples → CSV
 $('btnExportCsv').addEventListener('click', () => {
   if (samples.length === 0) {
