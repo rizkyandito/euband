@@ -180,9 +180,23 @@ const DEFAULT_THRESHOLDS = {
 function loadThresholds() {
   try {
     const raw = localStorage.getItem('euband.thresholds.v1');
-    if (!raw) return { ...DEFAULT_THRESHOLDS };
-    return { ...DEFAULT_THRESHOLDS, ...JSON.parse(raw) };
-  } catch { return { ...DEFAULT_THRESHOLDS }; }
+    if (!raw) return JSON.parse(JSON.stringify(DEFAULT_THRESHOLDS));
+    const parsed = JSON.parse(raw);
+    // Deep merge supaya gsr/bpm/logic individual fields ada fallback
+    return {
+      gsr: {
+        normalMax: Number.isFinite(parsed?.gsr?.normalMax) ? parsed.gsr.normalMax : DEFAULT_THRESHOLDS.gsr.normalMax,
+        sedangMax: Number.isFinite(parsed?.gsr?.sedangMax) ? parsed.gsr.sedangMax : DEFAULT_THRESHOLDS.gsr.sedangMax,
+      },
+      bpm: {
+        normalMax: Number.isFinite(parsed?.bpm?.normalMax) ? parsed.bpm.normalMax : DEFAULT_THRESHOLDS.bpm.normalMax,
+        sedangMax: Number.isFinite(parsed?.bpm?.sedangMax) ? parsed.bpm.sedangMax : DEFAULT_THRESHOLDS.bpm.sedangMax,
+      },
+      logic: (parsed?.logic === 'and' || parsed?.logic === 'or') ? parsed.logic : DEFAULT_THRESHOLDS.logic,
+    };
+  } catch {
+    return JSON.parse(JSON.stringify(DEFAULT_THRESHOLDS));
+  }
 }
 
 function categorize(gsrUs, bpm) {

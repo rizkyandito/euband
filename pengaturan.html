@@ -6,7 +6,7 @@
 <title>Pengaturan — Euband</title>
 <link rel="stylesheet" href="./css/euband.css" />
 <style>
-  .settings-wrap { max-width: 720px; }
+  .settings-wrap { max-width: 760px; }
   .settings-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -35,9 +35,9 @@
   .threshold-row .label-cell {
     font-size: 13px; font-weight: 600;
   }
-  .label-cell.normal { color: var(--blue); }
-  .label-cell.sedang { color: var(--amber); }
-  .label-cell.tinggi { color: var(--red); }
+  .label-cell.normal { color: #10b981; }
+  .label-cell.sedang { color: #f59e0b; }
+  .label-cell.tinggi { color: #ef4444; }
 
   .input-num {
     background: #f9fafb;
@@ -48,19 +48,119 @@
     font-size: 13px;
     width: 100%; box-sizing: border-box;
     text-align: center; outline: none;
-    transition: border-color .15s ease;
+    transition: border-color .15s ease, background .15s ease;
   }
   .input-num:focus { border-color: var(--blue); background: #fff; }
   .input-num[readonly] { background: #f3f4f6; color: var(--muted2); cursor: not-allowed; }
+  .input-num.invalid { border-color: var(--red); background: #fef2f2; }
 
   .helper-text { color: var(--muted2); font-size: 11px; }
 
   .settings-actions {
     display: flex; gap: 10px; margin-top: 24px;
     padding-top: 18px; border-top: 1px solid var(--border);
+    flex-wrap: wrap;
   }
 
-  /* Radio logic cards */
+  /* Status banner: tampilkan setting yang sekarang aktif */
+  .active-status {
+    background: #ecfdf5;
+    border: 1px solid #10b981;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #047857;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .active-status.custom {
+    background: #eff6ff;
+    border-color: var(--blue);
+    color: #1e40af;
+  }
+  .active-status .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: white;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Live preview classification */
+  .preview-section {
+    background: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 16px;
+  }
+  .preview-section h3 { margin: 0 0 4px; font-size: 16px; color: var(--text); }
+  .preview-section .hint { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+
+  .preview-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .preview-inputs .input-group {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .preview-inputs label {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .preview-inputs .input-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .preview-inputs input[type="range"] {
+    flex: 1; cursor: pointer;
+  }
+  .preview-inputs .num-display {
+    min-width: 60px;
+    text-align: right;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 14px;
+  }
+  .preview-result {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    text-align: center;
+  }
+  .preview-result-item .lbl {
+    font-size: 10px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .preview-result-item .val {
+    font-size: 14px; font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+  .preview-result-item .val.normal { background: #d1fae5; color: #047857; }
+  .preview-result-item .val.sedang { background: #fef3c7; color: #b45309; }
+  .preview-result-item .val.tinggi { background: #fee2e2; color: #b91c1c; }
+
+  /* Logic radio cards */
   .logic-option {
     display: flex; gap: 12px; align-items: flex-start;
     padding: 12px;
@@ -87,15 +187,30 @@
 
   .toast {
     position: fixed; bottom: 20px; right: 20px;
-    background: #ecfdf5; color: var(--green-text);
-    border: 1px solid var(--green); padding: 12px 16px;
+    background: #ecfdf5; color: #047857;
+    border: 1px solid #10b981; padding: 12px 16px;
     border-radius: 10px; font-size: 13px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     transform: translateY(100px); opacity: 0;
     transition: all 0.3s ease; z-index: 9999;
+    max-width: 400px;
   }
   .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.error { background: #fef2f2; color: var(--red-text); border-color: var(--red); }
+  .toast.error { background: #fef2f2; color: #991b1b; border-color: var(--red); }
+
+  /* Unsaved changes indicator */
+  .unsaved-indicator {
+    display: none;
+    padding: 8px 14px;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: auto;
+  }
+  .unsaved-indicator.show { display: inline-block; }
 </style>
 </head>
 <body>
@@ -131,6 +246,12 @@
 
   <div class="settings-wrap">
 
+    <!-- Status banner: kasih tau user setting mana yang aktif -->
+    <div class="active-status" id="activeStatus">
+      <span>✓</span>
+      <span><strong>Status:</strong> <span id="activeStatusText">Memuat...</span></span>
+    </div>
+
     <div class="settings-card">
       <h3>Threshold GSR (Konduktansi Kulit, µS)</h3>
       <p class="hint">
@@ -148,13 +269,13 @@
       <div class="threshold-row">
         <div class="label-cell normal">Normal</div>
         <input class="input-num" id="gsrNormalMin" type="number" step="0.1" readonly value="0">
-        <input class="input-num" id="gsrNormalMax" type="number" step="0.1" value="4">
+        <input class="input-num" id="gsrNormalMax" type="number" step="0.1" min="0.1" max="50" value="4">
         <div class="helper-text">&lt; batas atas</div>
       </div>
       <div class="threshold-row">
         <div class="label-cell sedang">Sedang</div>
         <input class="input-num" id="gsrSedangMin" type="number" step="0.1" value="4" readonly>
-        <input class="input-num" id="gsrSedangMax" type="number" step="0.1" value="6">
+        <input class="input-num" id="gsrSedangMax" type="number" step="0.1" min="0.1" max="50" value="6">
         <div class="helper-text">range tengah</div>
       </div>
       <div class="threshold-row">
@@ -181,13 +302,13 @@
       <div class="threshold-row">
         <div class="label-cell normal">Normal</div>
         <input class="input-num" id="bpmNormalMin" type="number" readonly value="0">
-        <input class="input-num" id="bpmNormalMax" type="number" value="90">
+        <input class="input-num" id="bpmNormalMax" type="number" min="40" max="220" value="90">
         <div class="helper-text">&lt; batas atas</div>
       </div>
       <div class="threshold-row">
         <div class="label-cell sedang">Sedang</div>
         <input class="input-num" id="bpmSedangMin" type="number" value="90" readonly>
-        <input class="input-num" id="bpmSedangMax" type="number" value="100">
+        <input class="input-num" id="bpmSedangMax" type="number" min="40" max="220" value="100">
         <div class="helper-text">range tengah</div>
       </div>
       <div class="threshold-row">
@@ -206,7 +327,7 @@
       <label class="logic-option">
         <input type="radio" name="logic" value="or" id="logicOr">
         <div>
-          <div class="logic-option-title">OR — ambil paling tinggi <span style="color:var(--green);">(Recommended)</span></div>
+          <div class="logic-option-title">OR — ambil paling tinggi <span style="color:#10b981;">(Recommended)</span></div>
           <div class="logic-option-desc">Salah satu sensor Tinggi → level Tinggi. Lebih sensitif.</div>
         </div>
       </label>
@@ -217,6 +338,47 @@
           <div class="logic-option-desc">Butuh KEDUA sensor naik. Lebih konservatif.</div>
         </div>
       </label>
+    </div>
+
+    <!-- Live preview: simulasi klasifikasi pakai threshold sekarang -->
+    <div class="preview-section">
+      <h3>🔬 Pratinjau Klasifikasi</h3>
+      <p class="hint">
+        Geser nilai untuk lihat bagaimana threshold di atas mengklasifikasikan stres.
+        Pratinjau ini pakai nilai threshold yang sedang kamu edit (belum perlu Save).
+      </p>
+
+      <div class="preview-inputs">
+        <div class="input-group">
+          <label>Simulasi GSR</label>
+          <div class="input-row">
+            <input type="range" id="previewGsr" min="0" max="20" step="0.1" value="3">
+            <div class="num-display"><span id="previewGsrVal">3.0</span> µS</div>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Simulasi BPM</label>
+          <div class="input-row">
+            <input type="range" id="previewBpm" min="40" max="180" step="1" value="75">
+            <div class="num-display"><span id="previewBpmVal">75</span> bpm</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-result">
+        <div class="preview-result-item">
+          <div class="lbl">Kategori GSR</div>
+          <div class="val" id="previewCatGsr">—</div>
+        </div>
+        <div class="preview-result-item">
+          <div class="lbl">Kategori BPM</div>
+          <div class="val" id="previewCatBpm">—</div>
+        </div>
+        <div class="preview-result-item">
+          <div class="lbl">Level Akhir</div>
+          <div class="val" id="previewLevel">—</div>
+        </div>
+      </div>
     </div>
 
     <div class="settings-card">
@@ -250,90 +412,275 @@
     <div class="settings-actions">
       <button class="btn btn-primary" id="btnSave">💾 Simpan Pengaturan</button>
       <button class="btn btn-ghost" id="btnReset">↺ Reset ke Default</button>
+      <span class="unsaved-indicator" id="unsavedIndicator">● Belum tersimpan</span>
     </div>
   </div>
 </main>
 
-<div class="toast" id="toast">✓ Pengaturan tersimpan</div>
+<div class="toast" id="toast">—</div>
 
 <script>
+  // ============================================================
+  // Storage helpers (deep merge & validasi)
+  // ============================================================
   const STORAGE_KEY = 'euband.thresholds.v1';
   const DEFAULTS = {
-    gsr: { normalMax: 4, sedangMax: 6 },
-    bpm: { normalMax: 90, sedangMax: 100 },
+    gsr:   { normalMax: 4,  sedangMax: 6 },
+    bpm:   { normalMax: 90, sedangMax: 100 },
     logic: 'or',
   };
+  const deepCopy = (o) => JSON.parse(JSON.stringify(o));
 
   function loadSettings() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { ...DEFAULTS };
-      return { ...DEFAULTS, ...JSON.parse(raw) };
-    } catch { return { ...DEFAULTS }; }
+      if (!raw) return deepCopy(DEFAULTS);
+      const parsed = JSON.parse(raw);
+      return {
+        gsr: {
+          normalMax: Number.isFinite(parsed?.gsr?.normalMax) ? parsed.gsr.normalMax : DEFAULTS.gsr.normalMax,
+          sedangMax: Number.isFinite(parsed?.gsr?.sedangMax) ? parsed.gsr.sedangMax : DEFAULTS.gsr.sedangMax,
+        },
+        bpm: {
+          normalMax: Number.isFinite(parsed?.bpm?.normalMax) ? parsed.bpm.normalMax : DEFAULTS.bpm.normalMax,
+          sedangMax: Number.isFinite(parsed?.bpm?.sedangMax) ? parsed.bpm.sedangMax : DEFAULTS.bpm.sedangMax,
+        },
+        logic: (parsed?.logic === 'and' || parsed?.logic === 'or') ? parsed.logic : DEFAULTS.logic,
+      };
+    } catch { return deepCopy(DEFAULTS); }
   }
+
   function saveSettings(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+  function clearSettings() { localStorage.removeItem(STORAGE_KEY); }
+
+  function isDefault(s) {
+    return s.gsr.normalMax === DEFAULTS.gsr.normalMax &&
+           s.gsr.sedangMax === DEFAULTS.gsr.sedangMax &&
+           s.bpm.normalMax === DEFAULTS.bpm.normalMax &&
+           s.bpm.sedangMax === DEFAULTS.bpm.sedangMax &&
+           s.logic === DEFAULTS.logic;
+  }
+
+  function settingsEqual(a, b) {
+    return a.gsr.normalMax === b.gsr.normalMax &&
+           a.gsr.sedangMax === b.gsr.sedangMax &&
+           a.bpm.normalMax === b.bpm.normalMax &&
+           a.bpm.sedangMax === b.bpm.sedangMax &&
+           a.logic === b.logic;
+  }
+
+  // ============================================================
+  // UI helpers
+  // ============================================================
+  const $ = (id) => document.getElementById(id);
 
   function applyToUI(s) {
-    document.getElementById('gsrNormalMax').value = s.gsr.normalMax;
-    document.getElementById('gsrSedangMin').value = s.gsr.normalMax;
-    document.getElementById('gsrSedangMax').value = s.gsr.sedangMax;
-    document.getElementById('gsrTinggiMin').value = s.gsr.sedangMax;
-    document.getElementById('bpmNormalMax').value = s.bpm.normalMax;
-    document.getElementById('bpmSedangMin').value = s.bpm.normalMax;
-    document.getElementById('bpmSedangMax').value = s.bpm.sedangMax;
-    document.getElementById('bpmTinggiMin').value = s.bpm.sedangMax;
-    document.getElementById(s.logic === 'and' ? 'logicAnd' : 'logicOr').checked = true;
+    $('gsrNormalMax').value = s.gsr.normalMax;
+    $('gsrSedangMin').value = s.gsr.normalMax;
+    $('gsrSedangMax').value = s.gsr.sedangMax;
+    $('gsrTinggiMin').value = s.gsr.sedangMax;
+    $('bpmNormalMax').value = s.bpm.normalMax;
+    $('bpmSedangMin').value = s.bpm.normalMax;
+    $('bpmSedangMax').value = s.bpm.sedangMax;
+    $('bpmTinggiMin').value = s.bpm.sedangMax;
+    $(s.logic === 'and' ? 'logicAnd' : 'logicOr').checked = true;
   }
-  function collectFromUI() {
-    const gsrNormalMax = Number(document.getElementById('gsrNormalMax').value);
-    const gsrSedangMax = Number(document.getElementById('gsrSedangMax').value);
-    const bpmNormalMax = Number(document.getElementById('bpmNormalMax').value);
-    const bpmSedangMax = Number(document.getElementById('bpmSedangMax').value);
+
+  function collectFromUI(throwOnError = true) {
+    const gsrNormalMax = parseFloat($('gsrNormalMax').value);
+    const gsrSedangMax = parseFloat($('gsrSedangMax').value);
+    const bpmNormalMax = parseFloat($('bpmNormalMax').value);
+    const bpmSedangMax = parseFloat($('bpmSedangMax').value);
     const logic = document.querySelector('input[name="logic"]:checked')?.value || 'or';
-    if (gsrSedangMax <= gsrNormalMax) throw new Error('GSR Sedang max harus lebih besar dari Normal max');
-    if (bpmSedangMax <= bpmNormalMax) throw new Error('BPM Sedang max harus lebih besar dari Normal max');
+
+    // Reset visual error state
+    ['gsrNormalMax', 'gsrSedangMax', 'bpmNormalMax', 'bpmSedangMax'].forEach(id => {
+      $(id).classList.remove('invalid');
+    });
+
+    const errors = [];
+
+    if (!Number.isFinite(gsrNormalMax) || gsrNormalMax <= 0) {
+      $('gsrNormalMax').classList.add('invalid');
+      errors.push('GSR Normal max harus angka > 0');
+    }
+    if (!Number.isFinite(gsrSedangMax) || gsrSedangMax <= 0) {
+      $('gsrSedangMax').classList.add('invalid');
+      errors.push('GSR Sedang max harus angka > 0');
+    }
+    if (gsrSedangMax <= gsrNormalMax) {
+      $('gsrSedangMax').classList.add('invalid');
+      errors.push('GSR Sedang max harus lebih besar dari Normal max');
+    }
+    if (!Number.isFinite(bpmNormalMax) || bpmNormalMax < 40) {
+      $('bpmNormalMax').classList.add('invalid');
+      errors.push('BPM Normal max harus ≥ 40');
+    }
+    if (!Number.isFinite(bpmSedangMax) || bpmSedangMax < 40) {
+      $('bpmSedangMax').classList.add('invalid');
+      errors.push('BPM Sedang max harus ≥ 40');
+    }
+    if (bpmSedangMax <= bpmNormalMax) {
+      $('bpmSedangMax').classList.add('invalid');
+      errors.push('BPM Sedang max harus lebih besar dari Normal max');
+    }
+
+    if (errors.length > 0 && throwOnError) {
+      throw new Error(errors[0]);
+    }
+
     return {
       gsr: { normalMax: gsrNormalMax, sedangMax: gsrSedangMax },
       bpm: { normalMax: bpmNormalMax, sedangMax: bpmSedangMax },
       logic,
+      _hasErrors: errors.length > 0,
     };
   }
+
   function showToast(msg, isError = false) {
-    const toast = document.getElementById('toast');
+    const toast = $('toast');
     toast.textContent = msg;
     toast.classList.toggle('error', isError);
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
+    setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  document.getElementById('gsrNormalMax').addEventListener('input', (e) => {
-    document.getElementById('gsrSedangMin').value = e.target.value;
-  });
-  document.getElementById('gsrSedangMax').addEventListener('input', (e) => {
-    document.getElementById('gsrTinggiMin').value = e.target.value;
-  });
-  document.getElementById('bpmNormalMax').addEventListener('input', (e) => {
-    document.getElementById('bpmSedangMin').value = e.target.value;
-  });
-  document.getElementById('bpmSedangMax').addEventListener('input', (e) => {
-    document.getElementById('bpmTinggiMin').value = e.target.value;
+  function updateActiveStatus(savedSettings) {
+    const banner = $('activeStatus');
+    const txt = $('activeStatusText');
+    if (isDefault(savedSettings)) {
+      banner.classList.remove('custom');
+      txt.innerHTML = `Pengaturan saat ini = <span class="badge">DEFAULT</span> &nbsp;
+        GSR ${savedSettings.gsr.normalMax}/${savedSettings.gsr.sedangMax}µS,
+        BPM ${savedSettings.bpm.normalMax}/${savedSettings.bpm.sedangMax},
+        logic ${savedSettings.logic.toUpperCase()}`;
+    } else {
+      banner.classList.add('custom');
+      txt.innerHTML = `Pengaturan saat ini = <span class="badge">KUSTOM</span> &nbsp;
+        GSR ${savedSettings.gsr.normalMax}/${savedSettings.gsr.sedangMax}µS,
+        BPM ${savedSettings.bpm.normalMax}/${savedSettings.bpm.sedangMax},
+        logic ${savedSettings.logic.toUpperCase()}`;
+    }
+  }
+
+  function updateUnsavedIndicator() {
+    try {
+      const current = collectFromUI(false);
+      const saved = loadSettings();
+      const dirty = !settingsEqual(current, saved) || current._hasErrors;
+      $('unsavedIndicator').classList.toggle('show', dirty);
+    } catch { /* ignore */ }
+  }
+
+  // ============================================================
+  // Live preview classification (sama logic dengan dashboard)
+  // ============================================================
+  function categorizePreview(gsrUs, bpm, t) {
+    const catGsr =
+      gsrUs > t.gsr.sedangMax  ? 'Tinggi' :
+      gsrUs >= t.gsr.normalMax ? 'Sedang' :
+                                 'Normal';
+    const catBpm =
+      bpm > t.bpm.sedangMax    ? 'Tinggi' :
+      bpm >= t.bpm.normalMax   ? 'Sedang' :
+                                 'Normal';
+    const rank = { 'Normal': 0, 'Sedang': 1, 'Tinggi': 2 };
+    const level = (t.logic === 'and')
+      ? (rank[catGsr] <= rank[catBpm] ? catGsr : catBpm)
+      : (rank[catGsr] >= rank[catBpm] ? catGsr : catBpm);
+    return { catGsr, catBpm, level };
+  }
+
+  function updatePreview() {
+    const gsr = parseFloat($('previewGsr').value);
+    const bpm = parseFloat($('previewBpm').value);
+    $('previewGsrVal').textContent = gsr.toFixed(1);
+    $('previewBpmVal').textContent = bpm;
+
+    // Pakai threshold dari UI (yang sedang di-edit, bukan saved)
+    let t;
+    try {
+      t = collectFromUI(false);
+      if (t._hasErrors) {
+        // Kalau invalid, fall back ke saved
+        t = loadSettings();
+      }
+    } catch {
+      t = loadSettings();
+    }
+
+    const res = categorizePreview(gsr, bpm, t);
+    setPreviewBadge('previewCatGsr', res.catGsr);
+    setPreviewBadge('previewCatBpm', res.catBpm);
+    setPreviewBadge('previewLevel',  res.level);
+  }
+
+  function setPreviewBadge(id, level) {
+    const el = $(id);
+    el.textContent = level;
+    el.classList.remove('normal', 'sedang', 'tinggi');
+    el.classList.add(level.toLowerCase());
+  }
+
+  // ============================================================
+  // Wire events
+  // ============================================================
+  // Auto-sync min input saat max berubah + update unsaved + preview
+  function onMaxChange() {
+    $('gsrSedangMin').value = $('gsrNormalMax').value;
+    $('gsrTinggiMin').value = $('gsrSedangMax').value;
+    $('bpmSedangMin').value = $('bpmNormalMax').value;
+    $('bpmTinggiMin').value = $('bpmSedangMax').value;
+    updateUnsavedIndicator();
+    updatePreview();
+  }
+
+  ['gsrNormalMax', 'gsrSedangMax', 'bpmNormalMax', 'bpmSedangMax'].forEach(id => {
+    $(id).addEventListener('input', onMaxChange);
   });
 
-  document.getElementById('btnSave').addEventListener('click', () => {
-    try {
-      const s = collectFromUI();
-      saveSettings(s);
-      showToast('✓ Pengaturan tersimpan. Dashboard akan pakai threshold baru saat analisis berikut.');
-    } catch (err) { showToast('⚠ ' + err.message, true); }
+  document.querySelectorAll('input[name="logic"]').forEach(r => {
+    r.addEventListener('change', () => {
+      updateUnsavedIndicator();
+      updatePreview();
+    });
   });
-  document.getElementById('btnReset').addEventListener('click', () => {
-    if (!confirm('Reset semua pengaturan ke default?')) return;
-    saveSettings({ ...DEFAULTS });
-    applyToUI({ ...DEFAULTS });
+
+  $('previewGsr').addEventListener('input', updatePreview);
+  $('previewBpm').addEventListener('input', updatePreview);
+
+  $('btnSave').addEventListener('click', () => {
+    try {
+      const s = collectFromUI(true);
+      delete s._hasErrors;
+      saveSettings(s);
+      updateActiveStatus(s);
+      updateUnsavedIndicator();
+      showToast('✓ Pengaturan tersimpan & langsung aktif. Klasifikasi berikutnya pakai threshold baru.');
+    } catch (err) {
+      showToast('⚠ ' + err.message, true);
+    }
+  });
+
+  $('btnReset').addEventListener('click', () => {
+    if (!confirm('Reset semua pengaturan ke default?\n\n' +
+                 'GSR: 4 / 6 µS\n' +
+                 'BPM: 90 / 100\n' +
+                 'Logic: OR')) return;
+    clearSettings();
+    const fresh = deepCopy(DEFAULTS);
+    applyToUI(fresh);
+    onMaxChange();
+    updateActiveStatus(fresh);
     showToast('↺ Pengaturan di-reset ke default');
   });
 
-  applyToUI(loadSettings());
+  // Init
+  const initial = loadSettings();
+  applyToUI(initial);
+  updateActiveStatus(initial);
+  updateUnsavedIndicator();
+  updatePreview();
 </script>
 </body>
 </html>
