@@ -363,28 +363,24 @@
       <div class="logic-justify">
         <div class="logic-justify-title">Kenapa ada dua pilihan?</div>
         <p>
-          GSR dan BPM punya karakter berbeda: GSR akurat &amp; responsif,
-          sedangkan PPG/BPM di pergelangan tangan rawan motion artifact
-          (gerakan), sehingga tidak ada satu aturan penggabungan yang
-          ideal untuk semua kondisi.
+          Sistem membaca dua hal: keringat (GSR) dan detak jantung (BPM).
+          Pilihan ini menentukan bagaimana hasil keduanya digabung.
         </p>
         <ul>
           <li>
-            <b>OR (ambil tertinggi)</b> — cukup salah satu sensor tinggi
-            untuk menaikkan level. Lebih <b>sensitif</b>, tidak melewatkan
-            indikasi stres, tetapi lebih berisiko alarm palsu. Dipakai
-            sebagai default agar sistem memperingatkan lebih awal.
+            <b>OR</b> — cukup <b>salah satu</b> tinggi, hasilnya sudah
+            dianggap tinggi. Lebih cepat memberi peringatan, tapi kadang
+            bisa keliru. Cocok dipakai sebagai pilihan utama.
           </li>
           <li>
-            <b>AND (ambil terendah)</b> — butuh kedua sensor naik dulu.
-            Lebih <b>konservatif</b>, mengurangi alarm palsu akibat
-            gangguan pada satu sensor saja, tetapi bisa melewatkan stres
-            jika hanya satu sinyal yang naik.
+            <b>AND</b> — <b>kedua-duanya</b> harus tinggi baru hasilnya
+            tinggi. Lebih hati-hati dan jarang salah, tapi kadang lambat
+            mendeteksi kalau cuma satu yang naik.
           </li>
         </ul>
         <p class="logic-justify-note">
-          Contoh: GSR = Tinggi, BPM = Normal &rarr;
-          <b>OR</b> menghasilkan <b>Tinggi</b>, <b>AND</b> menghasilkan
+          Contoh: keringat tinggi, detak jantung normal &rarr;
+          <b>OR</b> hasilnya <b>Tinggi</b>, <b>AND</b> hasilnya
           <b>Normal</b>.
         </p>
       </div>
