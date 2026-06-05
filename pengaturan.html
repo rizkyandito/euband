@@ -176,6 +176,27 @@
   .logic-option-title { font-weight: 600; color: var(--text); font-size: 14px; }
   .logic-option-desc  { color: var(--muted); font-size: 12px; margin-top: 2px; }
 
+  /* Justifikasi pilihan logika */
+  .logic-justify {
+    margin-top: 12px;
+    padding: 14px 16px;
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .logic-justify-title {
+    font-weight: 600; color: var(--text); font-size: 13px; margin-bottom: 6px;
+  }
+  .logic-justify p { margin: 0 0 8px; }
+  .logic-justify ul { margin: 0 0 8px; padding-left: 18px; }
+  .logic-justify li { margin-bottom: 6px; }
+  .logic-justify b { color: var(--text); }
+  .logic-justify-note { margin-bottom: 0 !important; }
+
   .info-row {
     display: flex; justify-content: space-between;
     padding: 10px 0; border-bottom: 1px solid var(--border);
@@ -338,6 +359,35 @@
           <div class="logic-option-desc">Butuh KEDUA sensor naik. Lebih konservatif.</div>
         </div>
       </label>
+
+      <div class="logic-justify">
+        <div class="logic-justify-title">Kenapa ada dua pilihan?</div>
+        <p>
+          GSR dan BPM punya karakter berbeda: GSR akurat &amp; responsif,
+          sedangkan PPG/BPM di pergelangan tangan rawan motion artifact
+          (gerakan), sehingga tidak ada satu aturan penggabungan yang
+          ideal untuk semua kondisi.
+        </p>
+        <ul>
+          <li>
+            <b>OR (ambil tertinggi)</b> — cukup salah satu sensor tinggi
+            untuk menaikkan level. Lebih <b>sensitif</b>, tidak melewatkan
+            indikasi stres, tetapi lebih berisiko alarm palsu. Dipakai
+            sebagai default agar sistem memperingatkan lebih awal.
+          </li>
+          <li>
+            <b>AND (ambil terendah)</b> — butuh kedua sensor naik dulu.
+            Lebih <b>konservatif</b>, mengurangi alarm palsu akibat
+            gangguan pada satu sensor saja, tetapi bisa melewatkan stres
+            jika hanya satu sinyal yang naik.
+          </li>
+        </ul>
+        <p class="logic-justify-note">
+          Contoh: GSR = Tinggi, BPM = Normal &rarr;
+          <b>OR</b> menghasilkan <b>Tinggi</b>, <b>AND</b> menghasilkan
+          <b>Normal</b>.
+        </p>
+      </div>
     </div>
 
     <!-- Live preview: simulasi klasifikasi pakai threshold sekarang -->
