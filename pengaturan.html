@@ -341,45 +341,46 @@
     </div>
 
     <div class="settings-card">
-      <h3>Logika Kombinasi</h3>
+      <h3>Logika Penggabungan</h3>
       <p class="hint">
-        Cara menggabungkan kategori GSR &amp; BPM jadi level akhir.
+        Cara dua sensor (GSR &amp; BPM) digabung menjadi satu level stres.
       </p>
       <label class="logic-option">
         <input type="radio" name="logic" value="or" id="logicOr">
         <div>
-          <div class="logic-option-title">OR — ambil paling tinggi <span style="color:#10b981;">(Recommended)</span></div>
-          <div class="logic-option-desc">Salah satu sensor Tinggi → level Tinggi. Lebih sensitif.</div>
+          <div class="logic-option-title">OR — Ambil yang Tertinggi <span style="color:#10b981;">(Disarankan)</span></div>
+          <div class="logic-option-desc">Cukup salah satu sensor Tinggi, hasil langsung Tinggi. Lebih responsif &amp; cepat memberi peringatan.</div>
         </div>
       </label>
       <label class="logic-option">
         <input type="radio" name="logic" value="and" id="logicAnd">
         <div>
-          <div class="logic-option-title">AND — ambil paling rendah</div>
-          <div class="logic-option-desc">Butuh KEDUA sensor naik. Lebih konservatif.</div>
+          <div class="logic-option-title">AND — Ambil yang Terendah</div>
+          <div class="logic-option-desc">Kedua sensor harus Tinggi dulu, baru hasil Tinggi. Lebih hati-hati &amp; jarang salah alarm.</div>
         </div>
       </label>
 
       <div class="logic-justify">
-        <div class="logic-justify-title">Mana yang sebaiknya dipilih?</div>
+        <div class="logic-justify-title">Sebaiknya pilih yang mana?</div>
         <p>
-          Sistem menilai stres dari dua hal: keringat (GSR) dan detak
-          jantung (BPM). Pilihan di atas mengatur cara menggabungkannya:
+          Tingkat stres dinilai dari dua sinyal tubuh: keringat (GSR) dan
+          detak jantung (BPM). Pilihan di atas menentukan cara keduanya
+          digabungkan.
         </p>
         <ul>
           <li>
-            <b>OR</b> = cukup <b>salah satu</b> tinggi → hasil Tinggi.
-            Lebih cepat memperingatkan, cocok untuk pemakaian harian.
+            <b>OR</b> — cukup satu sinyal naik → langsung Tinggi. Cocok
+            untuk pemakaian harian karena lebih cepat tanggap.
           </li>
           <li>
-            <b>AND</b> = <b>keduanya</b> harus tinggi → hasil Tinggi.
-            Lebih hati-hati, jarang salah, tapi bisa telat mendeteksi.
+            <b>AND</b> — keduanya harus naik → baru Tinggi. Lebih akurat,
+            tapi kadang telat mendeteksi.
           </li>
         </ul>
         <p class="logic-justify-note">
-          Misalnya keringat tinggi tapi detak jantung normal:
-          dengan <b>OR</b> hasilnya <b>Tinggi</b>, dengan <b>AND</b>
-          hasilnya <b>Normal</b>.
+          Contoh: keringat tinggi tapi detak jantung normal — dengan
+          <b>OR</b> hasilnya <b>Tinggi</b>, dengan <b>AND</b> hasilnya
+          <b>Normal</b>.
         </p>
       </div>
     </div>
