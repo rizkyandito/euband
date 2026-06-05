@@ -16,7 +16,7 @@
 <aside class="sidebar">
   <div class="brand">
     <div class="brand-name">EUBAND</div>
-    <div class="brand-sub">Stress Detection System</div>
+    <div class="brand-sub">Sistem Deteksi Stres</div>
   </div>
 
   <nav class="nav">
@@ -41,7 +41,7 @@
     <div class="user-avatar">E</div>
     <div>
       <div class="user-name">Euband</div>
-      <div class="user-role">Stress Monitor Device</div>
+      <div class="user-role">Alat Pemantau Stres</div>
     </div>
   </div>
 </aside>
@@ -52,7 +52,7 @@
   <header class="header">
     <div>
       <h1 class="title">Dashboard Pemantauan Stres</h1>
-      <p class="subtitle">Deteksi fisiologis — <span id="clock">--:--:--</span></p>
+      <p class="subtitle">Pemantauan kondisi tubuh — <span id="clock">--:--:--</span></p>
     </div>
     <div class="header-actions">
       <button class="status-pill" id="btnConnect">
@@ -71,11 +71,11 @@
       <div class="card-value" id="statLevel">—</div>
     </div>
     <div class="card stat-card">
-      <div class="card-label">BPM Saat Ini</div>
+      <div class="card-label">Detak Jantung (BPM)</div>
       <div class="card-value blue"><span id="statBpm">—</span><span class="unit">bpm</span></div>
     </div>
     <div class="card stat-card">
-      <div class="card-label">GSR Saat Ini</div>
+      <div class="card-label">Keringat Kulit (GSR)</div>
       <div class="card-value blue"><span id="statGsr">—</span><span class="unit">µS</span></div>
     </div>
     <div class="card stat-card">
@@ -99,12 +99,12 @@
     <div class="card chart-card">
       <div class="chart-head">
         <div>
-          <h3 class="chart-title">Grafik Tren Fisiologis</h3>
-          <p class="chart-sub">BPM &amp; konduktansi kulit (GSR) per waktu</p>
+          <h3 class="chart-title">Grafik Kondisi Tubuh</h3>
+          <p class="chart-sub">Detak jantung &amp; aktivitas keringat kulit dari waktu ke waktu</p>
         </div>
         <div class="chart-legend">
-          <span class="legend-item"><span class="lg-line bpm"></span>BPM</span>
-          <span class="legend-item"><span class="lg-line gsr"></span>GSR (μS)</span>
+          <span class="legend-item"><span class="lg-line bpm"></span>Detak / BPM</span>
+          <span class="legend-item"><span class="lg-line gsr"></span>Keringat / GSR (μS)</span>
         </div>
       </div>
       <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
@@ -115,9 +115,9 @@
         <button class="btn btn-ghost" id="btnStatus" disabled>Status</button>
         <div class="export-group">
           <button class="btn btn-danger" id="btnEndSession" disabled title="Akhiri sesi & hapus data dari tampilan (data tidak tersimpan permanen)">■ Hentikan Sesi</button>
-          <button class="btn btn-export" id="btnExportCsv" disabled title="Download data raw + filtered sebagai CSV">⬇ CSV</button>
-          <button class="btn btn-export" id="btnExportPng" disabled title="Download chart sebagai PNG">⬇ PNG</button>
-          <button class="btn btn-export" id="btnExportReport" disabled title="Download ringkasan analisis (JSON)">⬇ Report</button>
+          <button class="btn btn-export" id="btnExportCsv" disabled title="Unduh data lengkap dalam bentuk tabel (CSV)">⬇ Data (CSV)</button>
+          <button class="btn btn-export" id="btnExportPng" disabled title="Unduh gambar grafik (PNG)">⬇ Grafik (PNG)</button>
+          <button class="btn btn-export" id="btnExportReport" disabled title="Unduh ringkasan hasil analisis (Report)">⬇ Ringkasan (Report)</button>
         </div>
         <span class="hint" id="hintText">Hubungkan perangkat dulu untuk mulai merekam</span>
       </div>
@@ -169,20 +169,20 @@
       <div class="info-value">2 detik</div>
     </div>
     <div class="info-item">
-      <div class="info-label">Enkripsi Data</div>
-      <div class="info-value">AES-128</div>
+      <div class="info-label">Keamanan Data</div>
+      <div class="info-value">Aktif (AES-128)</div>
     </div>
     <div class="info-item">
       <div class="info-label">Kategori Stres</div>
       <div class="info-value">Normal / Sedang / Tinggi</div>
     </div>
     <div class="info-item">
-      <div class="info-label">Akurasi Klasifikasi</div>
+      <div class="info-label">Ketepatan Deteksi</div>
       <div class="info-value">≥ 80%</div>
     </div>
     <div class="info-item">
       <div class="info-label">Sensor Aktif</div>
-      <div class="info-value">PPG + GSR</div>
+      <div class="info-value">Detak Jantung (PPG) + Keringat (GSR)</div>
     </div>
   </section>
 
@@ -209,7 +209,7 @@
 
     <div class="dump-meta">
       <div class="dump-meta-item">
-        <div class="dump-meta-label">Sample</div>
+        <div class="dump-meta-label">Data terkirim</div>
         <div class="dump-meta-value"><span id="dumpCount">0</span> / <span id="dumpTotal">?</span></div>
       </div>
       <div class="dump-meta-item">

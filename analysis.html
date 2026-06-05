@@ -143,7 +143,7 @@
 <aside class="sidebar">
   <div class="brand">
     <div class="brand-name">EUBAND</div>
-    <div class="brand-sub">Stress Detection System</div>
+    <div class="brand-sub">Sistem Deteksi Stres</div>
   </div>
   <nav class="nav">
     <a class="nav-item" href="./dashboard.html"><span class="nav-ic">⬚</span>Dashboard</a>
@@ -157,7 +157,7 @@
     <div class="user-avatar">E</div>
     <div>
       <div class="user-name">Euband</div>
-      <div class="user-role">Stress Monitor Device</div>
+      <div class="user-role">Alat Pemantau Stres</div>
     </div>
   </div>
 </aside>
@@ -166,7 +166,7 @@
   <header class="header">
     <div>
       <h1 class="title">Riwayat Sesi</h1>
-      <p class="subtitle">Semua hasil pemantauan tersimpan di cloud</p>
+      <p class="subtitle">Semua hasil pemantauan tersimpan di server online (cloud)</p>
     </div>
   </header>
 
@@ -176,11 +176,11 @@
       <div class="card-value blue"><span id="stTotal">—</span></div>
     </div>
     <div class="card stat-card">
-      <div class="card-label">Rata-rata BPM</div>
+      <div class="card-label">Rata-rata Detak Jantung (BPM)</div>
       <div class="card-value blue"><span id="stAvgBpm">—</span><span class="unit">bpm</span></div>
     </div>
     <div class="card stat-card">
-      <div class="card-label">Rata-rata GSR</div>
+      <div class="card-label">Rata-rata Keringat (GSR)</div>
       <div class="card-value blue"><span id="stAvgGsr">—</span><span class="unit">µS</span></div>
     </div>
     <div class="card stat-card">
@@ -275,11 +275,11 @@
           </div>
           <div class="session-metrics-grid">
             <div class="metric-mini">
-              <div class="metric-mini-label">BPM</div>
+              <div class="metric-mini-label">Jantung (BPM)</div>
               <div class="metric-mini-value">${escapeHtml(bpm)}</div>
             </div>
             <div class="metric-mini">
-              <div class="metric-mini-label">GSR</div>
+              <div class="metric-mini-label">Keringat (GSR)</div>
               <div class="metric-mini-value">${escapeHtml(gsr)}<span class="metric-mini-unit">µS</span></div>
             </div>
             <div class="metric-mini">
@@ -290,7 +290,7 @@
           <div class="session-footer">
             <div class="session-footer-info">
               ${s.sample_count != null ? s.sample_count.toLocaleString('id-ID') + ' data' : ''}
-              ${s.category_gsr && s.category_bpm ? ` · GSR:${escapeHtml(s.category_gsr)} / HR:${escapeHtml(s.category_bpm)}` : ''}
+              ${s.category_gsr && s.category_bpm ? ` · Keringat:${escapeHtml(s.category_gsr)} / Jantung:${escapeHtml(s.category_bpm)}` : ''}
             </div>
             <button class="btn-delete" data-id="${escapeHtml(s.id)}">Hapus</button>
           </div>

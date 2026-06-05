@@ -94,7 +94,7 @@
 <aside class="sidebar">
   <div class="brand">
     <div class="brand-name">EUBAND</div>
-    <div class="brand-sub">Stress Detection System</div>
+    <div class="brand-sub">Sistem Deteksi Stres</div>
   </div>
   <nav class="nav">
     <a class="nav-item" href="./dashboard.html"><span class="nav-ic">⬚</span>Dashboard</a>
@@ -107,7 +107,7 @@
     <div class="user-avatar">E</div>
     <div>
       <div class="user-name">Euband</div>
-      <div class="user-role">Stress Monitor Device</div>
+      <div class="user-role">Alat Pemantau Stres</div>
     </div>
   </div>
 </aside>
@@ -116,7 +116,7 @@
   <header class="header">
     <div>
       <h1 class="title">Privasi &amp; Data</h1>
-      <p class="subtitle">Komitmen Euband terhadap data fisiologis kamu</p>
+      <p class="subtitle">Komitmen Euband terhadap data kondisi tubuh kamu</p>
     </div>
   </header>
 
@@ -126,12 +126,13 @@
     <div class="ephemeral-banner">
       <div class="ephemeral-icon">🔒</div>
       <div>
-        <p class="ephemeral-title">Data Anda Tidak Tersimpan Permanen</p>
+        <p class="ephemeral-title">Data Kamu Tidak Tersimpan Permanen</p>
         <p class="ephemeral-text">
           Hasil sesi perekaman hanya disimpan <strong>sementara di browser</strong> selama
           sesi aktif. Setelah sesi diakhiri, di-refresh, atau tab ditutup, semua data
-          fisiologis (BPM, GSR, grafik) <strong>hilang sepenuhnya</strong>. Tidak ada
-          database, tidak ada cloud, tidak ada server yang menyimpan rekaman Anda.
+          kondisi tubuh (BPM (detak jantung), GSR (keringat kulit), grafik)
+          <strong>hilang sepenuhnya</strong>. Tidak ada
+          database, tidak ada cloud, tidak ada server yang menyimpan rekaman kamu.
         </p>
       </div>
     </div>
@@ -141,7 +142,7 @@
       <div class="principle-grid">
         <div class="principle-card">
           <div class="principle-icon">⏱</div>
-          <div class="principle-title">Ephemeral by Design</div>
+          <div class="principle-title">Otomatis Hilang (Tidak Disimpan Permanen)</div>
           <div class="principle-desc">Data sesi hanya hidup di memori browser. Tidak ada penyimpanan permanen.</div>
         </div>
         <div class="principle-card">
@@ -151,13 +152,13 @@
         </div>
         <div class="principle-card">
           <div class="principle-icon">📡</div>
-          <div class="principle-title">Lokal &amp; BLE</div>
-          <div class="principle-desc">Data mengalir langsung dari device Euband ke browser via Bluetooth. Tidak melewati server.</div>
+          <div class="principle-title">Langsung dari Perangkat (Bluetooth)</div>
+          <div class="principle-desc">Data mengalir langsung dari perangkat Euband ke browser lewat Bluetooth. Tidak melewati server.</div>
         </div>
         <div class="principle-card">
           <div class="principle-icon">📥</div>
-          <div class="principle-title">Anda Pegang Kendali</div>
-          <div class="principle-desc">Mau simpan? Export CSV/JSON/PNG dari Dashboard. File disimpan di perangkat Anda sendiri.</div>
+          <div class="principle-title">Kamu Pegang Kendali</div>
+          <div class="principle-desc">Mau simpan? Simpan jadi file (CSV/JSON/PNG) dari Dashboard. File disimpan di perangkat kamu sendiri.</div>
         </div>
       </div>
     </div>
@@ -165,9 +166,9 @@
     <div class="privacy-card">
       <h3>Pengaturan Lokal (Browser)</h3>
       <p class="hint">
-        Hanya satu hal yang disimpan di browser: threshold klasifikasi yang
-        Anda atur di halaman <strong>Pengaturan</strong>. Tersimpan di
-        <code>localStorage</code> browser, tidak dikirim ke mana pun.
+        Hanya satu hal yang disimpan di browser: pengaturan tingkat deteksi stres yang
+        kamu atur di halaman <strong>Pengaturan</strong>. Tersimpan di
+        penyimpanan lokal di browser, tidak dikirim ke mana pun.
       </p>
       <button class="btn btn-ghost" id="btnClearLocal">🧹 Reset Pengaturan Lokal</button>
     </div>
@@ -177,16 +178,16 @@
       <div class="disclosure">
         <strong>Apa yang TIDAK kami simpan?</strong>
         <ul>
-          <li>Hasil sesi perekaman (BPM, HRV, GSR, kategori, level)</li>
-          <li>Raw samples PPG/GSR dari device</li>
+          <li>Hasil sesi perekaman (BPM (detak jantung), HRV (variasi jeda antar detak jantung), GSR (keringat kulit), kategori, level)</li>
+          <li>Data mentah dari sensor (detak jantung & keringat) dari perangkat</li>
           <li>Timestamp atau riwayat aktivitas</li>
           <li>Identitas pengguna (email, nama, IP, device ID)</li>
         </ul>
 
         <strong>Apa yang disimpan & dimana?</strong>
         <ul>
-          <li><strong>Threshold klasifikasi</strong> — di <code>localStorage</code> browser
-            Anda. Tidak dikirim ke server mana pun. Bisa dihapus kapan saja.</li>
+          <li><strong>Pengaturan tingkat deteksi stres</strong> — di penyimpanan lokal di browser
+            kamu. Tidak dikirim ke server mana pun. Bisa dihapus kapan saja.</li>
           <li><strong>Tidak ada lainnya.</strong></li>
         </ul>
 
@@ -197,10 +198,10 @@
           <li>Mulai sesi rekam baru (sesi lama otomatis ter-replace)</li>
         </ul>
 
-        <strong>Penyimpanan sementara di browser (sessionStorage)</strong>
+        <strong>Penyimpanan sementara browser</strong>
         <ul>
-          <li>Saat sesi aktif, hasil analisis tersimpan di <code>sessionStorage</code>
-            browser supaya tidak hilang waktu Anda berpindah antar menu</li>
+          <li>Saat sesi aktif, hasil analisis tersimpan di penyimpanan sementara
+            browser supaya tidak hilang waktu kamu berpindah antar menu</li>
           <li>Ini <strong>bukan</strong> penyimpanan permanen — browser otomatis hapus
             saat tab ditutup</li>
           <li>Tidak dikirim ke server mana pun</li>
@@ -209,8 +210,8 @@
         <strong>Bagaimana cara backup data?</strong>
         <ul>
           <li>Setelah sesi selesai, gunakan tombol <strong>⬇ CSV</strong> / <strong>⬇ PNG</strong> /
-            <strong>⬇ Report</strong> di Dashboard untuk mengunduh ke perangkat Anda</li>
-          <li>File hasil download adalah <strong>tanggung jawab penuh Anda</strong> — Euband
+            <strong>⬇ Report</strong> di Dashboard untuk mengunduh ke perangkat kamu</li>
+          <li>File hasil download adalah <strong>tanggung jawab penuh kamu</strong> — Euband
             tidak memiliki salinannya</li>
         </ul>
 
@@ -236,7 +237,7 @@
   }
 
   $('btnClearLocal').addEventListener('click', () => {
-    if (!confirm('Reset pengaturan threshold ke default?')) return;
+    if (!confirm('Kembalikan pengaturan batas deteksi ke nilai standar?')) return;
     localStorage.removeItem('euband.thresholds.v1');
     showToast('✓ Pengaturan lokal di-reset');
   });

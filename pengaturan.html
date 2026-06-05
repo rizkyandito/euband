@@ -239,7 +239,7 @@
 <aside class="sidebar">
   <div class="brand">
     <div class="brand-name">EUBAND</div>
-    <div class="brand-sub">Stress Detection System</div>
+    <div class="brand-sub">Sistem Deteksi Stres</div>
   </div>
   <nav class="nav">
     <a class="nav-item" href="./dashboard.html"><span class="nav-ic">⬚</span>Dashboard</a>
@@ -252,7 +252,7 @@
     <div class="user-avatar">E</div>
     <div>
       <div class="user-name">Euband</div>
-      <div class="user-role">Stress Monitor Device</div>
+      <div class="user-role">Alat Pemantau Stres</div>
     </div>
   </div>
 </aside>
@@ -261,7 +261,7 @@
   <header class="header">
     <div>
       <h1 class="title">Pengaturan</h1>
-      <p class="subtitle">Atur threshold klasifikasi stres sesuai baseline personal</p>
+      <p class="subtitle">Atur batas penentuan tingkat stres sesuai kondisi tubuhmu</p>
     </div>
   </header>
 
@@ -274,11 +274,11 @@
     </div>
 
     <div class="settings-card">
-      <h3>Threshold GSR (Konduktansi Kulit, µS)</h3>
+      <h3>Batas GSR (keringat kulit, µS)</h3>
       <p class="hint">
-        Nilai konduktansi kulit yang menentukan kategori stres. Default sesuai
-        baseline umum. Sesuaikan kalau kondisi kulit kamu beda (mis. selalu kering
-        atau selalu lembap).
+        Nilai aktivitas keringat kulit yang menentukan tingkat stres. Nilai
+        standar sesuai kondisi umum. Sesuaikan kalau kondisi kulitmu beda
+        (mis. selalu kering atau selalu lembap).
       </p>
 
       <div class="threshold-row header">
@@ -297,7 +297,7 @@
         <div class="label-cell sedang">Sedang</div>
         <input class="input-num" id="gsrSedangMin" type="number" step="0.1" value="4" readonly>
         <input class="input-num" id="gsrSedangMax" type="number" step="0.1" min="0.1" max="50" value="6">
-        <div class="helper-text">range tengah</div>
+        <div class="helper-text">bagian tengah</div>
       </div>
       <div class="threshold-row">
         <div class="label-cell tinggi">Tinggi</div>
@@ -308,10 +308,10 @@
     </div>
 
     <div class="settings-card">
-      <h3>Threshold BPM (Heart Rate)</h3>
+      <h3>Batas BPM (detak jantung)</h3>
       <p class="hint">
-        Detak jantung per menit yang menentukan kategori stres. Default sesuai
-        baseline umum dewasa.
+        Jumlah detak jantung per menit yang menentukan tingkat stres. Nilai
+        standar sesuai kondisi umum orang dewasa.
       </p>
 
       <div class="threshold-row header">
@@ -330,7 +330,7 @@
         <div class="label-cell sedang">Sedang</div>
         <input class="input-num" id="bpmSedangMin" type="number" value="90" readonly>
         <input class="input-num" id="bpmSedangMax" type="number" min="40" max="220" value="100">
-        <div class="helper-text">range tengah</div>
+        <div class="helper-text">bagian tengah</div>
       </div>
       <div class="threshold-row">
         <div class="label-cell tinggi">Tinggi</div>
@@ -386,22 +386,22 @@
 
     <!-- Live preview: simulasi klasifikasi pakai threshold sekarang -->
     <div class="preview-section">
-      <h3>🔬 Pratinjau Klasifikasi</h3>
+      <h3>🔬 Coba Simulasi (Pratinjau)</h3>
       <p class="hint">
-        Geser nilai untuk lihat bagaimana threshold di atas mengklasifikasikan stres.
-        Pratinjau ini pakai nilai threshold yang sedang kamu edit (belum perlu Save).
+        Geser nilai untuk melihat bagaimana batas di atas menentukan tingkat stres.
+        Simulasi ini memakai nilai batas yang sedang kamu atur (belum perlu disimpan).
       </p>
 
       <div class="preview-inputs">
         <div class="input-group">
-          <label>Simulasi GSR</label>
+          <label>Simulasi GSR (keringat kulit)</label>
           <div class="input-row">
             <input type="range" id="previewGsr" min="0" max="20" step="0.1" value="3">
             <div class="num-display"><span id="previewGsrVal">3.0</span> µS</div>
           </div>
         </div>
         <div class="input-group">
-          <label>Simulasi BPM</label>
+          <label>Simulasi BPM (detak jantung)</label>
           <div class="input-row">
             <input type="range" id="previewBpm" min="40" max="180" step="1" value="75">
             <div class="num-display"><span id="previewBpmVal">75</span> bpm</div>
@@ -411,11 +411,11 @@
 
       <div class="preview-result">
         <div class="preview-result-item">
-          <div class="lbl">Kategori GSR</div>
+          <div class="lbl">Tingkat GSR (keringat)</div>
           <div class="val" id="previewCatGsr">—</div>
         </div>
         <div class="preview-result-item">
-          <div class="lbl">Kategori BPM</div>
+          <div class="lbl">Tingkat BPM (detak)</div>
           <div class="val" id="previewCatBpm">—</div>
         </div>
         <div class="preview-result-item">
@@ -428,28 +428,28 @@
     <div class="settings-card">
       <h3>Info Perangkat</h3>
       <div class="info-row">
-        <span class="info-label">BLE Device Name</span>
+        <span class="info-label">Nama Perangkat</span>
         <span class="info-value">Euband01</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Sample Rate</span>
+        <span class="info-label">Kecepatan Perekaman</span>
         <span class="info-value">100 Hz</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Max Buffer</span>
-        <span class="info-value">360.000 samples (60 menit)</span>
+        <span class="info-label">Kapasitas Penyimpanan</span>
+        <span class="info-value">360.000 data (60 menit)</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Filter PPG (firmware)</span>
-        <span class="info-value">IIR Bandpass 0.5–5 Hz</span>
+        <span class="info-label">Penyaring sinyal PPG (sensor detak) — di perangkat</span>
+        <span class="info-value">otomatis</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Filter PPG (dashboard)</span>
-        <span class="info-value">Bandpass 0.5–3 Hz</span>
+        <span class="info-label">Penyaring sinyal PPG (sensor detak) — di aplikasi</span>
+        <span class="info-value">otomatis</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Versi Firmware</span>
-        <span class="info-value">v6 (IIR + Kalibrasi)</span>
+        <span class="info-label">Versi Perangkat</span>
+        <span class="info-value">v6</span>
       </div>
     </div>
 
@@ -700,7 +700,7 @@
       saveSettings(s);
       updateActiveStatus(s);
       updateUnsavedIndicator();
-      showToast('✓ Pengaturan tersimpan & langsung aktif. Klasifikasi berikutnya pakai threshold baru.');
+      showToast('✓ Pengaturan tersimpan & langsung aktif. Deteksi berikutnya pakai batas yang baru.');
     } catch (err) {
       showToast('⚠ ' + err.message, true);
     }
